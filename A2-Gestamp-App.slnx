@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/Docs/">
+    <File Path="ARCHITECTURE.md" />
+    <File Path="CONVENTIONS.md" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/A2-Gestamp-App.Application/A2-Gestamp-App.Application.csproj" />
+    <Project Path="src/A2-Gestamp-App.Client/A2-Gestamp-App.Client.csproj" />
+    <Project Path="src/A2-Gestamp-App.Domain/A2-Gestamp-App.Domain.csproj" />
+    <Project Path="src/A2-Gestamp-App.Infrastructure/A2-Gestamp-App.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
