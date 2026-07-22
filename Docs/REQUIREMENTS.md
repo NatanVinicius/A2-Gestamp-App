@@ -11,6 +11,7 @@ O operador precisa de uma interface melhor e mais intuitiva, controle de quem es
 ## 2. Requisitos Funcionais (O que o sistema FAZ)
 Use o padrão **RF01**, **RF02**, etc. Seja direto.
 
+- **RF00:** O sistema deve ter 3 turnos e sempre estar vinculado a 1 turno
 - **RF01:** O usuário deve conseguir visualizar as 3 imagens da inspeção atual e as ferramentas julgadas.
 - **RF02:** O usuário precisa saber o status do sistema e das comunicações externas.
 - **RF03:** O usuário deve ver o status da produção em tempo real (GOOD, NG, ÍNDICES).
@@ -19,7 +20,6 @@ Use o padrão **RF01**, **RF02**, etc. Seja direto.
 - **RF06:** O Administrador pode aprovar uma peça NG ou mante-la reprovada após efetuar login.
 - **RF07:** O usuário pode somente manter a peça reprovada após efetuar login.
 - **RF08:** O sistema deve salvar as 3 imagens caso for uma inspeção NG.
-- **RF09:** O sistema deve salvar no banco toda inspeção
 
 ## 3. Requisitos Não-Funcionais (Como o sistema SE COMPORTA)
 Restrições técnicas, segurança ou performance. Use **RNF01**, **RNF02**.
@@ -31,3 +31,4 @@ Listar o que você **sabe que quer**, mas decidiu cortar da primeira versão par
 - [ ] Exportar dados para PDF (Fica para a v2)
 - [ ] Gráficos avançados (Fica para a v2)
 - [ ] Deletar usuários (Fica para a v2)
+
