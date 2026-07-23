@@ -1,9 +1,6 @@
 @theme {
-  --color-primary: #2563eb;
-  --color-secondary: #64748b;
-  --color-background: #ffffff;
-  --color-surface: #f8fafc;
-  --color-success: #16a34a;
-  --color-warning: #ca8a04;
-  --color-danger: #dc2626;
+  --color-background: #0B0F14;
+  --color-card: #2A3442;
+  --color-border: #0E1319;
+  --color-primary: #FE4508;
 }

@@ -1,15 +1,19 @@
 @inherits LayoutComponentBase
 
-<div class="layout">
+<div class="w-full h-full bg-background text-white flex flex-col overflow-hidden">
 
-    <aside>
+    <Header />
+
+    <div class="flex flex-1 overflow-hidden">
+
         <NavMenu />
-    </aside>
 
-    <main>
+        <MainContent>
+          @Body
+        </MainContent>
 
-        @Body
+    </div>
 
-    </main>
+    <Footer />
 
 </div>
