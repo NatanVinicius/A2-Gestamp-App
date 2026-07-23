@@ -1,6 +1,12 @@
 <Solution>
+  <Folder Name="/assets/">
+    <File Path="assets/icon.ico" />
+    <File Path="assets/logo.png" />
+  </Folder>
   <Folder Name="/Docs/">
     <File Path="ARCHITECTURE.md" />
+    <File Path="assets/icon.ico" />
+    <File Path="assets/logo.png" />
     <File Path="CONVENTIONS.md" />
   </Folder>
   <Folder Name="/Solution Items/">
