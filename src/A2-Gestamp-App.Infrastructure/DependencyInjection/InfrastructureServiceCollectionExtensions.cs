@@ -15,6 +15,8 @@ public static class InfrastructureServiceCollectionExtensions
 
     services.AddKeyence();
 
+    services.AddSingleton<KeyenceInspectionWiring>();
+
     return services;
   }
 }

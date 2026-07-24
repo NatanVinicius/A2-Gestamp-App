@@ -19,11 +19,11 @@ internal sealed class ApplicationStartup : IApplicationStartup
 
   public async Task StartAsync()
   {
-    _logger.LogInformation("Starting application...");
-
     foreach (IKeyenceCamera camera in _cameras.OrderBy(c => c.CameraId))
     {
       await camera.ConnectAsync();
+
+      await camera.SimulateInspection();
     }
 
     _logger.LogInformation("Application started.");

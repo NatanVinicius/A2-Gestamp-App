@@ -18,6 +18,8 @@ public static class DependencyInjection
     services.AddSingleton<IKeyenceCamera>(sp =>
         ActivatorUtilities.CreateInstance<FakeKeyenceCamera>(sp, 3));
 
+    services.AddSingleton<KeyenceInspectionWiring>();
+
     return services;
   }
 }

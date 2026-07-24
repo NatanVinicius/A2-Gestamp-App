@@ -1,4 +1,8 @@
+using System.Diagnostics;
+
 using A2GestampApp.Application.Features.Keyence;
+
+using Features.Inspection.Domain;
 
 using Microsoft.Extensions.Logging;
 
@@ -13,6 +17,10 @@ public sealed class FakeKeyenceCamera : IKeyenceCamera
   public bool IsConnected { get; private set; }
 
   public event EventHandler<bool>? ConnectionStatusChanged;
+
+  public event EventHandler<CameraInspection>? InspectionReceived;
+
+  public event EventHandler<byte[]>? ImageReceived;
 
   public FakeKeyenceCamera(
       int cameraId,
@@ -66,5 +74,51 @@ public sealed class FakeKeyenceCamera : IKeyenceCamera
     IsConnected = connected;
 
     ConnectionStatusChanged?.Invoke(this, connected);
+  }
+
+  public async Task SimulateInspection()
+  {
+    var inspection = new CameraInspection(
+        cameraId: CameraId,
+        passed: true,
+        executionTime: 35.7,
+        tools:
+        [
+            new ToolResult
+            {
+                Name = "Presence",
+                Passed = true,
+                ExecutionTime = 12.4
+            },
+
+            new ToolResult
+            {
+                Name = "Diameter",
+                Passed = true,
+                ExecutionTime = 10.8
+            },
+
+            new ToolResult
+            {
+                Name = "Position",
+                Passed = true,
+                ExecutionTime = 12.5
+            }
+        ]);
+
+    InspectionReceived?.Invoke(this, inspection);
+
+    Debug.WriteLine($"[FAKE] Antes do delay {CameraId}");
+
+    await Task.Delay(300);
+
+    Debug.WriteLine($"[FAKE] Disparando imagem {CameraId}");
+
+    ImageReceived?.Invoke(this, CreateFakeImage());
+  }
+
+  private static byte[] CreateFakeImage()
+  {
+    return new byte[100];
   }
 }

@@ -4,6 +4,7 @@ using A2_Gestamp_App.Infrastructure.Logging;
 
 using A2GestampApp.Application.DependencyInjection;
 using A2GestampApp.Infrastructure.DependencyInjection;
+using A2GestampApp.Infrastructure.Features.Keyence;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -37,7 +38,7 @@ public static class MauiProgram
         .AddInfrastructure(builder.Configuration);
 
     builder.Services.Configure<NetworkSettings>(
-    builder.Configuration.GetSection("Network"));
+        builder.Configuration.GetSection("Network"));
 
     builder.Services.AddMauiBlazorWebView();
 
@@ -46,10 +47,13 @@ public static class MauiProgram
     builder.Logging.AddDebug();
 #endif
 
-    return builder.Build();
+    MauiApp app = builder.Build();
+
+    // Instancia o wiring para registrar os eventos das câmeras
+    app.Services.GetRequiredService<KeyenceInspectionWiring>();
+
+    return app;
   }
-
-
 
   private static void ConfigureConfiguration(MauiAppBuilder builder)
   {
@@ -67,4 +71,4 @@ public static class MauiProgram
 
     builder.Configuration.AddConfiguration(configuration);
   }
-};
+}
