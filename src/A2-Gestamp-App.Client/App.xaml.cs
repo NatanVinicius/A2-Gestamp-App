@@ -1,10 +1,15 @@
+using A2GestampApp.Application.Startup;
+
 namespace A2GestampApp.Client
 {
   public partial class App : Microsoft.Maui.Controls.Application
   {
-    public App()
+    public App(IApplicationStartup startup)
     {
       InitializeComponent();
+
+
+      _ = startup.StartAsync();
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
@@ -15,8 +20,8 @@ namespace A2GestampApp.Client
       };
 
 #if WINDOWS
-    window.Width = 1280;
-    window.Height = 800;
+      window.Width = 1280;
+      window.Height = 800;
 #endif
 
       return window;

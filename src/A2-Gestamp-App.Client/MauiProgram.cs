@@ -1,10 +1,14 @@
 using System.Reflection;
 
+using A2_Gestamp_App.Infrastructure.Logging;
+
 using A2GestampApp.Application.DependencyInjection;
 using A2GestampApp.Infrastructure.DependencyInjection;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+
+using Serilog;
 
 namespace A2GestampApp.Client;
 
@@ -22,6 +26,11 @@ public static class MauiProgram
         });
 
     ConfigureConfiguration(builder);
+
+    Log.Logger = SerilogConfiguration.CreateLogger();
+
+    builder.Logging.ClearProviders();
+    builder.Logging.AddSerilog(Log.Logger);
 
     builder.Services
         .AddApplication()
