@@ -27,6 +27,9 @@ public static class MauiProgram
         .AddApplication()
         .AddInfrastructure(builder.Configuration);
 
+    builder.Services.Configure<NetworkSettings>(
+    builder.Configuration.GetSection("Network"));
+
     builder.Services.AddMauiBlazorWebView();
 
 #if DEBUG

@@ -9,6 +9,8 @@ public static class InfrastructureServiceCollectionExtensions
       this IServiceCollection services,
       IConfiguration configuration)
   {
+    services.AddSingleton<INetworkConnectionService, NetworkConnectionService>();
+
     return services;
   }
 }

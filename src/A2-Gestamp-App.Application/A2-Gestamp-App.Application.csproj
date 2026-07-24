@@ -16,7 +16,6 @@
     <Folder Include="Common\Models\" />
     <Folder Include="Common\Interfaces\" />
     <Folder Include="Common\Exceptions\" />
-    <Folder Include="Features\" />
   </ItemGroup>
 
 </Project>

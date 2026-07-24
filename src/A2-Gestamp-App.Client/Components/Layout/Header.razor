@@ -1,11 +1,12 @@
+@using A2GestampApp.Client.Components.Shared
+@using A2GestampApp.Client.Components.Shared.Settings
 <header class="h-16 p-2 bg-background flex items-center flex">
   <div>
         <img src="assets/logo.png" alt="Logo" class="h-10 w-auto" />
   </div>
-    
-  <div class="ml-8">
+    <button class="ml-8" @onclick="OpenCommunicationModal">
         <i class="fa-solid fa-gear text-[18px] text-primary cursor-pointer transition-colors ease-in-out hover:text-primary/90"></i>
-  </div>
+  </button>
 
   <div class="flex-1 flex justify-center text-xs">
     <div class="flex gap-4">
@@ -24,4 +25,18 @@
         <p class="text-xl">15:50:09</p>
         <p class="text-[14.5px] text-white/70">22/07/2026</p>
     </div>
+
+    <CommunicationSettingsModal @bind-IsOpen="IsCommunicationModalOpen" />
+
+   
 </header>
+
+@code
+{
+    private bool IsCommunicationModalOpen;
+
+    private void OpenCommunicationModal()
+    {
+        IsCommunicationModalOpen = true;
+    }
+}
