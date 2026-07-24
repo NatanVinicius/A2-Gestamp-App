@@ -1,0 +1,91 @@
+@if (IsOpen)
+{
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+
+        <div class="w-[500px] rounded-xl bg-background shadow-xl border border-border">
+
+            <!-- Header -->
+            <div class="flex items-center px-6 py-4 border-b border-border">
+
+                <h2 class="flex-1 text-md text-center font-semibold">
+                    Comunicações Externas
+                </h2>
+
+                <button @onclick="Close" 
+        disabled="@IsLoading"
+                        class="text-text-muted hover:text-danger transition cursor-pointer">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 space-y-6">
+
+                <div>
+                    <label class="block mb-2 font-medium">
+                        IP da Câmera
+                    </label>
+
+                    <p class="mt-1 text-md text-text-muted text-white/30 @GetStatusColor(Camera1Online)">
+                        CAM1: @NetworkSettings.Value.Camera1
+                    </p>
+
+                    <p class="mt-1 text-md text-text-muted text-white/30 @GetStatusColor(Camera2Online)">
+                        CAM2: @NetworkSettings.Value.Camera2
+                    </p>
+
+                    <p class="mt-1 text-md text-text-muted text-white/30 @GetStatusColor(Camera3Online)">
+                        CAM3: @NetworkSettings.Value.Camera3
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block mb-2 font-medium">
+                        IP do PLC
+                    </label>
+
+                    <p class="mt-1 text-md text-text-muted text-white/30  @GetStatusColor(PlcOnline)">
+                        @NetworkSettings.Value.Plc
+                    </p>
+
+                </div>
+
+                <div>
+
+                    <label class="block mb-2 font-medium">
+                        IP do HOST
+                    </label>
+
+                    <p class="mt-1 text-md text-text-muted text-white/30 @GetStatusColor(HostOnline)">
+                        @NetworkSettings.Value.Host
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="flex justify-end gap-3 px-6 py-4 border-t border-border">
+
+                <button @onclick="TestConnections"
+                        disabled="@IsLoading"
+                        class="flex items-center justify-center rounded-lg bg-primary w-40 py-2 text-white transition disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer">
+
+                    <div class="flex items-center justify-center h-4 w-4 transition-all duration-150"
+                         style="opacity:@(IsLoading ? "1" : "0"); margin-right:@(IsLoading ? "8px" : "-16px")">
+
+                        <div class="h-4 w-4 animate-spin rounded-full border-2 border-dotted border-white border-t-transparent"></div>
+
+                    </div>
+
+                    <span>@(IsLoading ? "Testando..." : "Testar conexões")</span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+}
