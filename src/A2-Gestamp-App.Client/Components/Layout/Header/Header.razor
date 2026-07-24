@@ -1,0 +1,43 @@
+@using A2GestampApp.Client.Components.Shared
+@using A2GestampApp.Client.Components.Shared.Settings
+@using A2GestampApp.Application.Features.Keyence
+
+<header class="h-16 p-2 bg-background flex items-center">
+
+    <div>
+        <img src="assets/logo.png" alt="Logo" class="h-10 w-auto" />
+    </div>
+
+    <button class="ml-8" @onclick="OpenCommunicationModal">
+        <i class="fa-solid fa-gear text-[18px] text-primary cursor-pointer transition-colors ease-in-out hover:text-primary/90"></i>
+    </button>
+
+    <div class="flex-1 flex justify-center text-xs">
+        <div class="flex gap-4">
+
+            @foreach (var camera in OrderedCameras)
+            {
+                <div class="flex items-center gap-2">
+                    <div class="@GetStatusColor(camera.IsConnected) w-2 h-2 rounded-full"></div>
+
+                    <p>Câmera @camera.CameraId</p>
+                </div>
+            }
+
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-gray-500 rounded-full"></div>
+
+                <p>PLC</p>
+            </div>
+
+        </div>
+    </div>
+
+    <div>
+        <p class="text-xl">@CurrentTime</p>
+        <p class="text-[14.5px] text-white/70">@CurrentDate</p>
+    </div>
+
+    <CommunicationSettingsModal @bind-IsOpen="IsCommunicationModalOpen" />
+
+</header>
