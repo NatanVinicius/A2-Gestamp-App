@@ -80,7 +80,7 @@ public sealed class FakeKeyenceCamera : IKeyenceCamera
   {
     var inspection = new CameraInspection(
         cameraId: CameraId,
-        passed: true,
+        passed: false,
         executionTime: 35.7,
         tools:
         [

@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Features.Inspection.Domain;
+using Features.Inspection.Domain;
 
 public sealed class InspectionService : IInspectionService
 {
@@ -8,11 +8,13 @@ public sealed class InspectionService : IInspectionService
 
   public Inspection? CurrentInspection => _currentInspection;
 
+  public event EventHandler<Inspection>? InspectionChanged;
+
   public event EventHandler<Inspection>? InspectionCompleted;
 
   public void StartInspection()
   {
-    Debug.WriteLine("[SERVICE] StartInspection()");
+    Debug.WriteLine("[SERVICE] StartInspectionModel()");
 
     if (_currentInspection is not null &&
         !_currentInspection.IsComplete())
@@ -22,22 +24,28 @@ public sealed class InspectionService : IInspectionService
     }
 
     _currentInspection = new Inspection();
+
+    InspectionChanged?.Invoke(this, (Inspection)_currentInspection);
   }
 
   public void AddCameraResult(CameraInspection cameraInspection)
   {
     Debug.WriteLine($"[SERVICE] AddCameraResult Camera {cameraInspection.CameraId}");
 
-    CurrentInspectionOrThrow()
-        .AddCameraResult(cameraInspection);
-  }
+    Inspection inspection = CurrentInspectionOrThrow();
 
+    inspection.AddCameraResult(cameraInspection);
+
+    InspectionChanged?.Invoke(this, inspection);
+  }
 
   public void AddCameraImage(int cameraId, byte[] image)
   {
     Inspection inspection = CurrentInspectionOrThrow();
 
     inspection.AddCameraImage(cameraId, image);
+
+    InspectionChanged?.Invoke(this, inspection);
 
     if (!inspection.IsComplete())
     {
@@ -50,7 +58,8 @@ public sealed class InspectionService : IInspectionService
 
     InspectionCompleted?.Invoke(this, inspection);
 
-    _currentInspection = null;
+    // Mantém a inspeção disponível até a próxima iniciar.
+    InspectionChanged?.Invoke(this, inspection);
   }
 
   private Inspection CurrentInspectionOrThrow()

@@ -9,4 +9,8 @@ public interface IInspectionService
   public void AddCameraResult(CameraInspection cameraInspection);
 
   public void AddCameraImage(int cameraId, byte[] image);
+
+  public event EventHandler<Inspection>? InspectionChanged;
+
+  public event EventHandler<Inspection>? InspectionCompleted;
 }

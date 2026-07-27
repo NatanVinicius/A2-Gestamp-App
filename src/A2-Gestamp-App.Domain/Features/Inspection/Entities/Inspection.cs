@@ -17,7 +17,10 @@ public sealed class Inspection
 
   public InspectionJudgement Judgement { get; private set; } = InspectionJudgement.Unknown;
 
-  public IReadOnlyCollection<CameraInspection> Cameras => _cameras;
+  public IReadOnlyList<CameraInspection> Cameras =>
+    _cameras
+        .OrderBy(c => c.CameraId)
+        .ToList();
 
   public void AddCameraResult(CameraInspection cameraInspection)
   {
@@ -77,8 +80,8 @@ public sealed class Inspection
     Status = InspectionStatus.Evaluated;
 
     Judgement = _cameras.All(c => c.Passed)
-        ? InspectionJudgement.Good
-        : InspectionJudgement.NoGood;
+        ? InspectionJudgement.Aprovada
+        : InspectionJudgement.Reprovada;
 
     Debug.WriteLine($"[DOMAIN] Resultado = {Judgement}");
   }

@@ -1,3 +1,6 @@
+@using Features.Inspection.Domain
+
+
 <div class="w-220 rounded-md overflow-hidden bg-card">
   <div class="text-sm py-4 px-4 text-sm bg-border">
     FERRAMENTAS
@@ -18,26 +21,26 @@
             <!-- Conteúdo -->
             <div class="flex-1 overflow-y-auto text-white/80 scrollbar-none">
 
-                @foreach (var item in Items)
+            @foreach (var tool in Camera?.Tools ?? Enumerable.Empty<ToolResult>())
                 {
                     <div class="grid grid-cols-3 items-center py-2 border-b border-white/5 hover:bg-white/5">
 
                         <span class="truncate">
-                            @item.Name
+                        @tool.Name
                         </span>
 
                         <span class="text-center font-mono text-sm">
-                            @($"{item.ExecutionTime:F2} ms")
+                            @($"{tool.ExecutionTime:F2} ms")
                         </span>
 
                         <div class="flex justify-center ml-18">
 
                             <span class="@(
-                                  item.Passed
+                                  tool.Passed
                                       ? "px-3 py-1 rounded-md bg-green-600 text-white text-xs font-semibold"
                                       : "px-3 py-1 rounded-md bg-red-600 text-white text-xs font-semibold")">
 
-                                @(item.Passed ? "GOOD" : "NG")
+                                @(tool.Passed ? "GOOD" : "NG")
 
                             </span>
 
@@ -49,40 +52,12 @@
             </div>
 
         </div>
-
-
-
-
-
-
-
-
-
-
 </div>
 
 @code {
-    private sealed class InspectionItem
-    {
-        public string Name { get; init; } = string.Empty;
-        public double ExecutionTime { get; init; }
-        public bool Passed { get; init; }
-    }
+
+  [Parameter]
+  public CameraInspection? Camera { get; set; }
 
 
-    private readonly List<InspectionItem> Items =
-[
-    new() { Name = "Presença do Parafuso", ExecutionTime = 4.25, Passed = true },
-    new() { Name = "Posição da Tampa", ExecutionTime = 6.82, Passed = true },
-    new() { Name = "Etiqueta", ExecutionTime = 3.94, Passed = false },
-    new() { Name = "Código QR", ExecutionTime = 5.17, Passed = true },
-    new() { Name = "Torque", ExecutionTime = 8.51, Passed = false },
-    new() { Name = "Conector", ExecutionTime = 2.73, Passed = true },
-    new() { Name = "Altura", ExecutionTime = 4.62, Passed = true },
-    new() { Name = "Largura", ExecutionTime = 3.18, Passed = true },
-    new() { Name = "Rosca", ExecutionTime = 7.40, Passed = false },
-    new() { Name = "Vedação", ExecutionTime = 6.03, Passed = true },
-    new() { Name = "Data Matrix", ExecutionTime = 5.66, Passed = true },
-    new() { Name = "Inspeção Final", ExecutionTime = 9.84, Passed = true }
-];
 }

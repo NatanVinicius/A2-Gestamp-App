@@ -6,6 +6,8 @@ using A2GestampApp.Application.DependencyInjection;
 using A2GestampApp.Infrastructure.DependencyInjection;
 using A2GestampApp.Infrastructure.Features.Keyence;
 
+using Features.Statistics;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -49,8 +51,8 @@ public static class MauiProgram
 
     MauiApp app = builder.Build();
 
-    // Instancia o wiring para registrar os eventos das câmeras
     app.Services.GetRequiredService<KeyenceInspectionWiring>();
+    app.Services.GetRequiredService<StatisticsWiring>();
 
     return app;
   }

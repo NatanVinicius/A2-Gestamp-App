@@ -1,77 +1,82 @@
-<div class="flex justify-between">
-  
-    <div class="bg-card py-3 px-4 flex items-center justify-center gap-4 rounded-md">
+<div class="grid grid-cols-7 gap-3">
+
+    <div class="bg-card rounded-md px-4 py-3 flex items-center gap-4">
         <i class="fa-solid fa-industry text-2xl text-blue-500"></i>
+
         <div>
-            <p class="text-white/60 text-sm">PRODUZIDAS</p>
-            <div class="text-center">
-                <p class="font-semibold">120 <span class="text-white/80 font-normal">un.</span></p>
-            </div>
+            <p class="text-xs uppercase tracking-wide text-white/60">Produzidas</p>
+            <p class="font-semibold text-sm text-center mt-1">
+                @StatisticsService.Current.TotalInspections
+                <span class="text-sm font-normal text-white/70">un.</span>
+            </p>
         </div>
     </div>
 
-    <div class="bg-card py-3 px-4 flex items-center justify-center gap-4 rounded-md">
+    <div class="bg-card rounded-md px-4 py-3 flex items-center gap-4">
         <i class="fa-solid fa-circle-check text-2xl text-green-500"></i>
+
         <div>
-            <p class="text-white/60 text-sm">APROVAS</p>
-            <div class="text-center">
-                <p class="font-semibold">120 <span class="text-white/80 font-normal">un.</span></p>
-            </div>
+            <p class="text-xs uppercase tracking-wide text-white/60">Aprovadas</p>
+            <p class="font-semibold text-sm text-center mt-1">
+                @StatisticsService.Current.GoodInspections
+                <span class="text-sm font-normal text-white/70">un.</span>
+            </p>
         </div>
     </div>
 
-    <div class="bg-card py-3 px-4 flex items-center justify-center gap-4 rounded-md">
+    <div class="bg-card rounded-md px-4 py-3 flex items-center gap-4">
         <i class="fa-solid fa-circle-xmark text-2xl text-red-500"></i>
+
         <div>
-            <p class="text-white/60 text-sm">REPROVAS</p>
-            <div class="text-center">
-                <p class="font-semibold">120 <span class="text-white/80 font-normal">un.</span></p>
-            </div>
+            <p class="text-xs uppercase tracking-wide text-white/60">Reprovadas</p>
+            <p class="font-semibold text-sm text-center mt-1">
+                @StatisticsService.Current.NoGoodInspections
+                <span class="text-sm font-normal text-white/70">un.</span>
+            </p>
         </div>
     </div>
 
-    <div class="bg-card py-3 px-4 flex items-center justify-center gap-4 rounded-md">
+    <div class="bg-card rounded-md px-4 py-3 flex items-center gap-4">
         <i class="fa-solid fa-magnifying-glass text-2xl text-yellow-500"></i>
+
         <div>
-            <p class="text-white/60 text-sm">ÚLT. INSP</p>
-            <div class="text-center">
-                <span class="font-semibold">GOOD</span>
-            </div>
+            <p class="text-xs uppercase tracking-wide text-white/60">Últ. Insp.</p>
+            <p class="font-semibold text-sm text-center mt-1">
+                @(StatisticsService.Current.LastInspection?.Judgement.ToString().ToUpper() ?? "-")
+            </p>
         </div>
     </div>
-    
-    <div class="bg-card py-3 px-4 flex items-center justify-center gap-4 rounded-md">
+
+    <div class="bg-card rounded-md px-4 py-3 flex items-center gap-4">
         <i class="fa-solid fa-arrow-trend-down text-2xl text-pink-500"></i>
+
         <div>
-            <p class="text-white/60 text-sm">ÍND. REJEITO</p>
-            <div class="text-center">
-                <span class="font-semibold">3%</span>
-            </div>
+            <p class="text-xs uppercase tracking-wide text-white/60">Índ. Rejeito</p>
+            <p class="font-semibold text-sm text-center mt-1">
+                @($"{StatisticsService.Current.RejectRate:F1}%")
+            </p>
         </div>
     </div>
 
-    <div class="bg-card py-3 px-4 flex items-center justify-center gap-4 rounded-md">
+    <div class="bg-card rounded-md px-4 py-3 flex items-center gap-4">
         <i class="fa-solid fa-clock text-2xl text-purple-500"></i>
+
         <div>
-            <p class="text-white/60 text-sm">TEMPO DE CICLO</p>
-            <div class="text-center">
-                <p class="font-semibold">4.2 <span class="text-white/80 font-normal">ms.</span></p>
-            </div>
+            <p class="text-xs uppercase tracking-wide text-white/60">Temp. Ciclo</p>
+            <p class="font-semibold text-sm text-center mt-1">
+                @StatisticsService.Current.AverageExecutionTime.ToString("F2")
+                <span class="text-sm font-normal text-white/70">ms</span>
+            </p>
         </div>
     </div>
 
-    <div class="bg-card py-3 px-4 flex items-center justify-center gap-4 rounded-md">
-        <i class="fa-solid fa-solid fa-arrow-trend-up text-2xl text-green-300"></i>
+    <div class="bg-card rounded-md px-4 py-3 flex items-center justify-center gap-4">
+        <i class="fa-solid fa-arrow-trend-up text-2xl text-green-300"></i>
+
         <div>
-            <p class="text-white/60 text-sm">DISPONIB.</p>
-            <div class="text-center">
-                <span class="font-semibold">99%</span>
-            </div>
+            <p class="text-xs uppercase tracking-wide text-white/60">Disponib.</p>
+            <p class="font-semibold text-sm text-center mt-1">100%</p>
         </div>
     </div>
 
 </div>
-
-@code {
-
-}
