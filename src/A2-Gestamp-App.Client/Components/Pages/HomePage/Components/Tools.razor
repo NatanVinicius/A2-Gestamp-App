@@ -1,14 +1,7 @@
-@using Features.Inspection.Domain
-
-
 <div class="w-220 rounded-md overflow-hidden bg-card">
   <div class="text-sm py-4 px-4 text-sm bg-border">
     FERRAMENTAS
   </div>
-
-
-
-
         <div class="flex flex-col h-full w-full p-4 rounded-xl text-sm overflow-hidden">
 
             <!-- Cabeçalho -->
@@ -20,44 +13,39 @@
 
             <!-- Conteúdo -->
             <div class="flex-1 overflow-y-auto text-white/80 scrollbar-none">
-
-            @foreach (var tool in Camera?.Tools ?? Enumerable.Empty<ToolResult>())
+                
+            @if (Camera is not null)
+            {
+                @foreach (var tool in Camera.Tools)
                 {
-                    <div class="grid grid-cols-3 items-center py-2 border-b border-white/5 hover:bg-white/5">
+    <div class="grid grid-cols-3 items-center py-2 border-b border-white/5 hover:bg-white/5">
 
-                        <span class="truncate">
-                        @tool.Name
-                        </span>
+        <span class="truncate">
+            @tool.Name
+        </span>
 
-                        <span class="text-center font-mono text-sm">
-                            @($"{tool.ExecutionTime:F2} ms")
-                        </span>
+        <span class="text-center font-mono text-sm">
+          @(tool.ExecutionTime.TotalMilliseconds.ToString("F1")) ms
+        </span>
 
-                        <div class="flex justify-center ml-18">
+        <div class="flex justify-center ml-18">
 
-                            <span class="@(
-                                  tool.Passed
-                                      ? "px-3 py-1 rounded-md bg-green-600 text-white text-xs font-semibold"
-                                      : "px-3 py-1 rounded-md bg-red-600 text-white text-xs font-semibold")">
+            <span class="@(
+                tool.Approved
+                    ? "px-3 py-1 rounded-md bg-green-600 text-white text-xs font-semibold"
+                    : "px-3 py-1 rounded-md bg-red-600 text-white text-xs font-semibold")">
 
-                                @(tool.Passed ? "GOOD" : "NG")
+                @(tool.Approved ? "GOOD" : "NG")
 
-                            </span>
+            </span>
 
-                        </div>
+        </div>
 
-                    </div>
+    </div>
+}
                 }
 
             </div>
 
         </div>
 </div>
-
-@code {
-
-  [Parameter]
-  public CameraInspection? Camera { get; set; }
-
-
-}

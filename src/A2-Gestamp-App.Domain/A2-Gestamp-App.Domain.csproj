@@ -16,4 +16,8 @@
     <None Remove="ValueObjects\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Inspection\Enums\" />
+  </ItemGroup>
+
 </Project>

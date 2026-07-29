@@ -1,8 +1,7 @@
+using A2GestampApp.Application.Features.Inspection;
+using A2GestampApp.Application.Features.Inspection.IInspection;
 using A2GestampApp.Application.Startup;
 
-
-using Features.Inspection.Domain;
-using Features.Statistics;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,11 +14,9 @@ public static class ApplicationServiceCollectionExtensions
   {
     services.AddSingleton<IApplicationStartup, ApplicationStartup>();
 
-    services.AddSingleton<IInspectionService, InspectionService>();
+    services.AddSingleton<IInspectionCoordinator, InspectionCoordinator>();
 
-    services.AddSingleton<IStatisticsService, StatisticsService>();
-
-    services.AddSingleton<StatisticsWiring>();
+    services.AddSingleton<IInspectionState, InspectionState>();
 
     return services;
   }

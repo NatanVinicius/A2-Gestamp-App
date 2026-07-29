@@ -4,9 +4,6 @@ using A2_Gestamp_App.Infrastructure.Logging;
 
 using A2GestampApp.Application.DependencyInjection;
 using A2GestampApp.Infrastructure.DependencyInjection;
-using A2GestampApp.Infrastructure.Features.Keyence;
-
-using Features.Statistics;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -50,9 +47,6 @@ public static class MauiProgram
 #endif
 
     MauiApp app = builder.Build();
-
-    app.Services.GetRequiredService<KeyenceInspectionWiring>();
-    app.Services.GetRequiredService<StatisticsWiring>();
 
     return app;
   }

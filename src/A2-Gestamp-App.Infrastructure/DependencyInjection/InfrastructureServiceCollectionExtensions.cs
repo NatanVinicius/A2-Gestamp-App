@@ -1,4 +1,4 @@
-using A2GestampApp.Infrastructure.Features.Keyence;
+using A2GestampApp.Infrastructure.Features.Images;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,9 +13,8 @@ public static class InfrastructureServiceCollectionExtensions
   {
     services.AddSingleton<INetworkConnectionService, NetworkConnectionService>();
 
-    services.AddKeyence();
-
-    services.AddSingleton<KeyenceInspectionWiring>();
+    services.AddKeyence(configuration);
+    services.AddImages();
 
     return services;
   }

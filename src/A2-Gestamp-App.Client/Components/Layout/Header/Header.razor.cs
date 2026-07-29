@@ -1,16 +1,9 @@
-using A2GestampApp.Application.Features.Keyence;
-
 using Microsoft.AspNetCore.Components;
 
 namespace A2GestampApp.Client.Components.Layout.Header;
 
 public partial class Header : ComponentBase, IDisposable
 {
-  [Inject]
-  private IEnumerable<IKeyenceCamera> Cameras { get; set; } = default!;
-
-  protected IEnumerable<IKeyenceCamera> OrderedCameras =>
-      Cameras.OrderBy(c => c.CameraId);
 
   protected bool IsCommunicationModalOpen;
 
@@ -22,10 +15,7 @@ public partial class Header : ComponentBase, IDisposable
 
   protected override void OnInitialized()
   {
-    foreach (var camera in Cameras)
-    {
-      camera.ConnectionStatusChanged += OnConnectionChanged;
-    }
+
   }
 
   private void OnConnectionChanged(object? sender, bool connected)
@@ -45,9 +35,5 @@ public partial class Header : ComponentBase, IDisposable
 
   public void Dispose()
   {
-    foreach (var camera in Cameras)
-    {
-      camera.ConnectionStatusChanged -= OnConnectionChanged;
-    }
   }
 }

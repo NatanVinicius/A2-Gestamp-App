@@ -1,4 +1,5 @@
-using Features.Inspection.Domain;
+using A2GestampApp.Application.Features.Inspection;
+using A2GestampApp.Domain.Features.Inspection.Models;
 
 using Microsoft.AspNetCore.Components;
 
@@ -7,50 +8,37 @@ namespace A2GestampApp.Client.Components.Pages.HomePage;
 public partial class HomePage : IDisposable
 {
   [Inject]
-  public IInspectionService InspectionService { get; set; } = default!;
+  private IInspectionState InspectionState { get; set; } = default!;
+
+  private Inspection? _inspection;
 
   private int _currentIndex;
 
-  private Inspection? CurrentInspection =>
-      InspectionService.CurrentInspection;
-
-  private CameraInspection? SelectedCamera =>
-      CurrentInspection?.Cameras.ElementAtOrDefault(_currentIndex);
+  private CameraInspection? CurrentCamera =>
+      _currentIndex switch
+      {
+        0 => _inspection?.Camera1,
+        1 => _inspection?.Camera2,
+        2 => _inspection?.Camera3,
+        _ => null
+      };
 
   protected override void OnInitialized()
   {
-    InspectionService.InspectionChanged += OnInspectionChanged;
+    _inspection = InspectionState.CurrentInspection;
+
+    InspectionState.InspectionChanged += OnInspectionChanged;
   }
 
-  private void OnInspectionChanged(object? sender, Inspection inspection)
+  private void OnInspectionChanged()
   {
-    if (_currentIndex >= inspection.Cameras.Count)
-    {
-      _currentIndex = 0;
-    }
+    _inspection = InspectionState.CurrentInspection;
 
     InvokeAsync(StateHasChanged);
   }
 
-  private async Task ChangeCamera(int index)
-  {
-    if (CurrentInspection is null)
-    {
-      return;
-    }
-
-    if (index < 0 || index >= CurrentInspection.Cameras.Count)
-    {
-      return;
-    }
-
-    _currentIndex = index;
-
-    await InvokeAsync(StateHasChanged);
-  }
-
   public void Dispose()
   {
-    InspectionService.InspectionChanged -= OnInspectionChanged;
+    InspectionState.InspectionChanged -= OnInspectionChanged;
   }
 }

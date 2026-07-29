@@ -1,3 +1,5 @@
+using A2GestampApp.Domain.Features.Inspection.Models;
+
 using Microsoft.AspNetCore.Components;
 
 namespace A2GestampApp.Client.Components.Pages.HomePage.Components;
@@ -15,11 +17,6 @@ public partial class Inspection
 
   [Parameter]
   public EventCallback<int> CurrentIndexChanged { get; set; }
-
-  private string? CurrentImage =>
-      Camera?.Image is null
-          ? null
-          : $"data:image/jpeg;base64,{Convert.ToBase64String(Camera.Image)}";
 
   private Task Next()
   {

@@ -6,7 +6,7 @@
         <div>
             <p class="text-xs uppercase tracking-wide text-white/60">Produzidas</p>
             <p class="font-semibold text-sm text-center mt-1">
-                @StatisticsService.Current.TotalInspections
+                text
                 <span class="text-sm font-normal text-white/70">un.</span>
             </p>
         </div>
@@ -18,7 +18,7 @@
         <div>
             <p class="text-xs uppercase tracking-wide text-white/60">Aprovadas</p>
             <p class="font-semibold text-sm text-center mt-1">
-                @StatisticsService.Current.GoodInspections
+                text
                 <span class="text-sm font-normal text-white/70">un.</span>
             </p>
         </div>
@@ -30,7 +30,7 @@
         <div>
             <p class="text-xs uppercase tracking-wide text-white/60">Reprovadas</p>
             <p class="font-semibold text-sm text-center mt-1">
-                @StatisticsService.Current.NoGoodInspections
+               text
                 <span class="text-sm font-normal text-white/70">un.</span>
             </p>
         </div>
@@ -42,7 +42,7 @@
         <div>
             <p class="text-xs uppercase tracking-wide text-white/60">Últ. Insp.</p>
             <p class="font-semibold text-sm text-center mt-1">
-                @(StatisticsService.Current.LastInspection?.Judgement.ToString().ToUpper() ?? "-")
+                text
             </p>
         </div>
     </div>
@@ -53,7 +53,7 @@
         <div>
             <p class="text-xs uppercase tracking-wide text-white/60">Índ. Rejeito</p>
             <p class="font-semibold text-sm text-center mt-1">
-                @($"{StatisticsService.Current.RejectRate:F1}%")
+                text
             </p>
         </div>
     </div>
@@ -63,8 +63,7 @@
 
         <div>
             <p class="text-xs uppercase tracking-wide text-white/60">Temp. Ciclo</p>
-            <p class="font-semibold text-sm text-center mt-1">
-                @StatisticsService.Current.AverageExecutionTime.ToString("F2")
+            <p class="font-semibold text-sm text-center mt-1">text
                 <span class="text-sm font-normal text-white/70">ms</span>
             </p>
         </div>

@@ -1,24 +1,48 @@
-using A2GestampApp.Application.Features.Keyence;
+using A2GestampApp.Infrastructure.Features.Keyence;
 
+using Infrastructure.Features.Keyence.Parsers;
+
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
-namespace A2GestampApp.Infrastructure.Features.Keyence;
-
 public static class DependencyInjection
 {
   public static IServiceCollection AddKeyence(
-      this IServiceCollection services)
+      this IServiceCollection services,
+      IConfiguration configuration)
   {
-    services.AddSingleton<IKeyenceCamera>(sp =>
-        ActivatorUtilities.CreateInstance<FakeKeyenceCamera>(sp, 1));
+    services.AddSingleton(sp =>
+    {
+      IConfigurationSection section = configuration.GetSection("Keyence");
 
-    services.AddSingleton<IKeyenceCamera>(sp =>
-        ActivatorUtilities.CreateInstance<FakeKeyenceCamera>(sp, 2));
+      return new KeyenceOptions
+      {
+        Cameras =
+          [
+              new CameraOptions
+            {
+                Name = section["Cameras:0:Name"] ?? string.Empty,
+                Host = section["Cameras:0:Host"] ?? string.Empty,
+                Port = int.Parse(section["Cameras:0:Port"]!)
+            },
+            new CameraOptions
+            {
+                Name = section["Cameras:1:Name"] ?? string.Empty,
+                Host = section["Cameras:1:Host"] ?? string.Empty,
+                Port = int.Parse(section["Cameras:1:Port"]!)
+            },
+            new CameraOptions
+            {
+                Name = section["Cameras:2:Name"] ?? string.Empty,
+                Host = section["Cameras:2:Host"] ?? string.Empty,
+                Port = int.Parse(section["Cameras:2:Port"]!)
+            }
+          ]
+      };
+    });
 
-    services.AddSingleton<IKeyenceCamera>(sp =>
-        ActivatorUtilities.CreateInstance<FakeKeyenceCamera>(sp, 3));
+    services.AddSingleton<IKeyenceService, KeyenceService>();
 
-    services.AddSingleton<KeyenceInspectionWiring>();
+    services.AddSingleton<CameraMessageParser>();
 
     return services;
   }

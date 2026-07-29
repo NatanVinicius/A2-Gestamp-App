@@ -12,12 +12,12 @@
 
     <div class="flex-1 min-h-0 flex gap-4 overflow-hidden">
 
-        <Inspection Camera="SelectedCamera"
-                    CameraCount="@(CurrentInspection?.Cameras.Count ?? 0)"
-                    CurrentIndex="_currentIndex"
-                    CurrentIndexChanged="ChangeCamera" />
+        <Inspection CameraCount="3"
+                    CurrentIndex="@_currentIndex"
+                    CurrentIndexChanged="@(i => _currentIndex = i)"
+                    Camera="@CurrentCamera" />
 
-        <Tools Camera="SelectedCamera" />
+        <Tools Camera="@CurrentCamera" />
 
     </div>
 

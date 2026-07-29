@@ -1,33 +1,49 @@
-using Features.Inspection.Domain;
+
+namespace A2GestampApp.Domain.Features.Inspection.Models;
 
 public sealed class CameraInspection
 {
   public int CameraId { get; }
 
-  public bool Passed { get; }
+  public bool Approved { get; private set; }
 
-  public double ExecutionTime { get; }
+  public TimeSpan ExecutionTime { get; private set; }
 
-  public IReadOnlyList<ToolResult> Tools { get; }
+  public string? ImagePath { get; private set; }
 
-  public byte[]? Image { get; private set; }
+  public IReadOnlyCollection<ToolInspection> Tools => _tools;
 
-  public CameraInspection(
-    int cameraId,
-    bool passed,
-    double executionTime,
-    IReadOnlyList<ToolResult> tools)
+  public bool HasResult { get; private set; }
+
+  public bool HasImage =>
+      !string.IsNullOrWhiteSpace(ImagePath);
+
+  public bool IsCompleted =>
+      HasResult && HasImage;
+
+  private readonly List<ToolInspection> _tools = [];
+
+  public CameraInspection(int cameraId)
   {
     CameraId = cameraId;
-    Passed = passed;
-    ExecutionTime = executionTime;
-    Tools = tools;
   }
 
-  public void SetImage(byte[] image)
+  public void SetResult(
+      bool approved,
+      TimeSpan executionTime,
+      IEnumerable<ToolInspection> tools)
   {
-    ArgumentNullException.ThrowIfNull(image);
+    Approved = approved;
+    ExecutionTime = executionTime;
 
-    Image = image;
+    _tools.Clear();
+    _tools.AddRange(tools);
+
+    HasResult = true;
+  }
+
+  public void SetImage(string imagePath)
+  {
+    ImagePath = imagePath;
   }
 }

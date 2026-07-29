@@ -73,6 +73,9 @@
     <ItemGroup>
       <Folder Include="Resources\Icons\" />
       <Folder Include="Resources\Themes\" />
+      <Folder Include="wwwroot\Assets\Imagens\VS3\" />
+      <Folder Include="wwwroot\Assets\Imagens\VS2\" />
+      <Folder Include="wwwroot\Assets\Imagens\VS1\" />
     </ItemGroup>
 
   <Target Name="CheckNode" BeforeTargets="Build">

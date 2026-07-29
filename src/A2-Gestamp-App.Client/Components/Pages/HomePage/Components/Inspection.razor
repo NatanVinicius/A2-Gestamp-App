@@ -4,34 +4,25 @@
     <p>INSPEÇÃO ATUAL</p>
     <div class="flex gap-6">
       <p>
-
-          @(Camera is null
-              ? "Aguardando imagens..."
-              : $"Camera {Camera.CameraId}")
-
+              
       </p>
       <div>
         <i class="fa-solid fa-camera text-primary"></i>
-        <span>@Camera?.CameraId</span>
+        <span>VS@(Camera?.CameraId)</span>
       </div>
     </div>
   </div>
     <div class="relative flex-1 flex overflow-hidden px-4 pt-4">
         <div class="w-full h-full flex items-center justify-center rounded-md shadow-lg overflow-hidden ">
-            @if (CurrentImage is not null)
+            @if (Camera?.HasImage == true)
             {
-                <img src="@CurrentImage"
+                <img src="@Camera.ImagePath"
                      class="w-full h-full object-fill" />
             }
             else
             {
-                <div class="flex items-center justify-center w-full h-full">
-
-                    <span class="text-muted-foreground">
-                        Aguardando imagens...
-                    </span>
-
-                </div>
+                <span>Aguardando imagem...</span>
+            
             }
         </div>
 
@@ -54,11 +45,11 @@
 
     </div>
 
-    @if (CameraCount > 1)
+    @if (true)
     {
         <div class="flex justify-center gap-4 pt-2 pb-4">
 
-            @for (int i = 0; i < CameraCount; i++)
+            @for (int i = 0; i < 3; i++)
             {
                 int index = i;
 
