@@ -1,4 +1,4 @@
-namespace A2GestampApp.Domain.Features.Inspection.Models;
+namespace A2_Gestamp_App.Domain.Features.Inspection.Entities;
 
 public sealed class ToolInspection
 {

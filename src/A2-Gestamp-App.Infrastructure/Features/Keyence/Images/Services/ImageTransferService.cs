@@ -1,7 +1,9 @@
 using System.Diagnostics;
 
+using A2_Gestamp_App.Domain.Features.Inspection.Entities;
+
 using A2GestampApp.Application.Features.Images.Services;
-using A2GestampApp.Domain.Features.Inspection.Models;
+using A2GestampApp.Domain.Features.Inspection.Entities;
 
 namespace A2GestampApp.Infrastructure.Features.Images.Services;
 

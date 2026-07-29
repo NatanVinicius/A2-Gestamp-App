@@ -1,11 +1,11 @@
 using System.Diagnostics;
 using System.Text.Json; // <-- Adicionado para serialização
 
-using A2GestampApp.Application.Features.Inspection.IInspection;
-using A2GestampApp.Application.Features.Keyence.Models;
-using A2GestampApp.Domain.Features.Inspection.Models;
+using A2_Gestamp_App.Domain.Features.Inspection.Entities;
 
-using DomainInspection = A2GestampApp.Domain.Features.Inspection.Models.Inspection;
+using A2GestampApp.Application.Features.Keyence.Models;
+
+using DomainInspection = A2GestampApp.Domain.Features.Inspection.Entities.Inspection;
 
 namespace A2GestampApp.Application.Features.Inspection;
 
