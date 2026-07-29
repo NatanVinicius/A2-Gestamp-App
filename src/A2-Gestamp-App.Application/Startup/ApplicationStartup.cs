@@ -1,7 +1,6 @@
 using A2GestampApp.Application.Features.Images.Services;
 using A2GestampApp.Application.Features.Inspection;
-using A2GestampApp.Application.Features.Inspection.IInspection;
-using A2GestampApp.Domain.Features.Inspection.Models;
+using A2GestampApp.Domain.Features.Inspection.Entities;
 
 using Microsoft.Extensions.Logging;
 
@@ -14,6 +13,8 @@ internal sealed class ApplicationStartup : IApplicationStartup
   private readonly IInspectionCoordinator _inspectionCoordinator;
   private readonly IImageTransferService _imageTransferService;
   private readonly IInspectionState _inspectionState;
+  private readonly IInspectionStatisticsState _inspectionStatisticsState;
+  private readonly InspectionStatistics _statistics = new();
   private readonly ILogger<ApplicationStartup> _logger;
 
   public ApplicationStartup(
@@ -21,6 +22,7 @@ internal sealed class ApplicationStartup : IApplicationStartup
     IImageWatcherService imageWatcher,
     IInspectionCoordinator inspectionCoordinator,
     IInspectionState inspectionState,
+    IInspectionStatisticsState inspectionStatisticsState,
     IImageTransferService imageTransferService,
 
     ILogger<ApplicationStartup> logger)
@@ -30,6 +32,7 @@ internal sealed class ApplicationStartup : IApplicationStartup
     _inspectionCoordinator = inspectionCoordinator;
     _imageTransferService = imageTransferService;
     _inspectionState = inspectionState;
+    _inspectionStatisticsState = inspectionStatisticsState;
     _logger = logger;
   }
 
@@ -50,6 +53,10 @@ internal sealed class ApplicationStartup : IApplicationStartup
   private void OnInspectionCompleted(Inspection inspection)
   {
     _imageTransferService.Transfer(inspection);
+
+    _statistics.Register(inspection);
+
+    _inspectionStatisticsState.SetStatistics(_statistics);
 
     _inspectionState.SetInspection(inspection);
 

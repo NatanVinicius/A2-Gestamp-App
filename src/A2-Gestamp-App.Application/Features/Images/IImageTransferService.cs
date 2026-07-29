@@ -1,4 +1,4 @@
-using DomainInspection = A2GestampApp.Domain.Features.Inspection.Models.Inspection;
+using DomainInspection = A2GestampApp.Domain.Features.Inspection.Entities.Inspection;
 
 namespace A2GestampApp.Application.Features.Images.Services;
 

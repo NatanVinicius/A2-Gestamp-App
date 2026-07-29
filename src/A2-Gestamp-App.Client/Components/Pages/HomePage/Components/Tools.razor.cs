@@ -1,4 +1,4 @@
-using A2GestampApp.Domain.Features.Inspection.Models;
+using A2_Gestamp_App.Domain.Features.Inspection.Entities;
 
 using Microsoft.AspNetCore.Components;
 

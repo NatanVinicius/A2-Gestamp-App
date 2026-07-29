@@ -1,4 +1,10 @@
-namespace A2GestampApp.Domain.Features.Inspection.Models;
+
+
+using A2_Gestamp_App.Domain.Features.Inspection.Entities;
+
+using A2GestampApp.Domain.Features.Inspection.Enums;
+
+namespace A2GestampApp.Domain.Features.Inspection.Entities;
 
 public sealed class Inspection
 {
@@ -12,6 +18,24 @@ public sealed class Inspection
       Camera1.IsCompleted &&
       Camera2.IsCompleted &&
       Camera3.IsCompleted;
+
+  public bool Approved =>
+      Camera1.Approved &&
+      Camera2.Approved &&
+      Camera3.Approved;
+
+  public TimeSpan CycleTime =>
+      new[]
+      {
+            Camera1.ExecutionTime,
+            Camera2.ExecutionTime,
+            Camera3.ExecutionTime
+      }.Max();
+
+  public InspectionResult Result =>
+    Approved
+        ? InspectionResult.Aprovada
+        : InspectionResult.Reprovada;
 
   public CameraInspection GetCamera(int cameraId)
   {
