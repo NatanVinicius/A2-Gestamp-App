@@ -37,7 +37,7 @@ public static class MauiProgram
         .AddInfrastructure(builder.Configuration);
 
     builder.Services.Configure<NetworkSettings>(
-    builder.Configuration.GetSection("Network"));
+        builder.Configuration.GetSection("Network"));
 
     builder.Services.AddMauiBlazorWebView();
 
@@ -46,10 +46,10 @@ public static class MauiProgram
     builder.Logging.AddDebug();
 #endif
 
-    return builder.Build();
+    MauiApp app = builder.Build();
+
+    return app;
   }
-
-
 
   private static void ConfigureConfiguration(MauiAppBuilder builder)
   {
@@ -67,4 +67,4 @@ public static class MauiProgram
 
     builder.Configuration.AddConfiguration(configuration);
   }
-};
+}

@@ -10,6 +10,7 @@ namespace A2GestampApp.Client
 
 
       _ = startup.StartAsync();
+
     }
 
     protected override Window CreateWindow(IActivationState? activationState)

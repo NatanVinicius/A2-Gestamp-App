@@ -1,12 +1,10 @@
-namespace A2GestampApp.Application.Features.Keyence;
+using A2GestampApp.Application.Features.Keyence.Models;
 
 public interface IKeyenceService
 {
-  public bool IsConnected { get; }
+  public event Action<CameraInspectionResult> InspectionReceived;
 
-  public event EventHandler<bool>? ConnectionStatusChanged;
+  public Task StartAsync(CancellationToken cancellationToken = default);
 
-  public Task ConnectAsync();
-
-  public Task DisconnectAsync();
+  public Task StopAsync();
 }

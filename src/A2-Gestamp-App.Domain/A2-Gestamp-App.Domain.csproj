@@ -5,9 +5,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="ValueObjects\" />
-    <Folder Include="Enums\" />
-    <Folder Include="Entities\" />
+    <Compile Remove="Entities\**" />
+    <Compile Remove="Enums\**" />
+    <Compile Remove="ValueObjects\**" />
+    <EmbeddedResource Remove="Entities\**" />
+    <EmbeddedResource Remove="Enums\**" />
+    <EmbeddedResource Remove="ValueObjects\**" />
+    <None Remove="Entities\**" />
+    <None Remove="Enums\**" />
+    <None Remove="ValueObjects\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Inspection\Enums\" />
   </ItemGroup>
 
 </Project>
