@@ -1,4 +1,5 @@
 using A2GestampApp.Infrastructure.Features.Images;
+using A2GestampApp.Infrastructure.Hikvision;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,11 @@ public static class InfrastructureServiceCollectionExtensions
 
     services.AddKeyence(configuration);
     services.AddImages();
+
+    services.AddSingleton<HikvisionClient>();
+    services.AddSingleton<FaceRecognitionServer>();
+
+    services.AddSingleton<IFaceRecognitionService, HikvisionFaceRecognitionService>();
 
     return services;
   }

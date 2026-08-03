@@ -1,6 +1,8 @@
 using A2GestampApp.Application.Features.Images.Services;
 using A2GestampApp.Application.Features.Inspection;
+using A2GestampApp.Application.Features.Ng;
 using A2GestampApp.Domain.Features.Inspection.Entities;
+using A2GestampApp.Domain.Features.Inspection.Enums;
 
 using Microsoft.Extensions.Logging;
 
@@ -15,6 +17,9 @@ internal sealed class ApplicationStartup : IApplicationStartup
   private readonly IInspectionState _inspectionState;
   private readonly IInspectionStatisticsState _inspectionStatisticsState;
   private readonly InspectionStatistics _statistics = new();
+  private readonly INgState _ngState;
+  private readonly IFaceRecognitionService _faceRecognitionService;
+  private readonly IAuthenticatedUserState _authenticatedUserState;
   private readonly ILogger<ApplicationStartup> _logger;
 
   public ApplicationStartup(
@@ -23,8 +28,10 @@ internal sealed class ApplicationStartup : IApplicationStartup
     IInspectionCoordinator inspectionCoordinator,
     IInspectionState inspectionState,
     IInspectionStatisticsState inspectionStatisticsState,
+    INgState ngState,
+    IFaceRecognitionService faceRecognitionService,
     IImageTransferService imageTransferService,
-
+    IAuthenticatedUserState authenticatedUserState,
     ILogger<ApplicationStartup> logger)
   {
     _keyenceService = keyenceService;
@@ -32,8 +39,13 @@ internal sealed class ApplicationStartup : IApplicationStartup
     _inspectionCoordinator = inspectionCoordinator;
     _imageTransferService = imageTransferService;
     _inspectionState = inspectionState;
+    _ngState = ngState;
     _inspectionStatisticsState = inspectionStatisticsState;
+    _faceRecognitionService = faceRecognitionService;
+    _authenticatedUserState = authenticatedUserState;
     _logger = logger;
+
+    _faceRecognitionService.UserRecognized += OnUserRecognized;
   }
 
   public async Task StartAsync()
@@ -46,6 +58,10 @@ internal sealed class ApplicationStartup : IApplicationStartup
     _imageWatcher.Start();
 
     await _keyenceService.StartAsync();
+
+    await _faceRecognitionService.StartAsync();
+
+    await _faceRecognitionService.DisableAsync();
 
     _logger.LogInformation("Application started.");
   }
@@ -60,6 +76,18 @@ internal sealed class ApplicationStartup : IApplicationStartup
 
     _inspectionState.SetInspection(inspection);
 
+    if (inspection.Result == InspectionResult.Reprovada)
+    {
+      _ngState.Open();
+    }
+
     _logger.LogInformation("Inspeção concluída.");
+  }
+
+  private async void OnUserRecognized(FaceRecognitionEvent e)
+  {
+    _authenticatedUserState.SetUser(e);
+
+    await _ngState.SetSuccessAsync();
   }
 }

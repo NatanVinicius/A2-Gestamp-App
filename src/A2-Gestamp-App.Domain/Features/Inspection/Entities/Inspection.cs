@@ -14,6 +14,8 @@ public sealed class Inspection
 
   public CameraInspection Camera3 { get; } = new(3);
 
+  private InspectionResult? _manualResult;
+
   public bool IsCompleted =>
       Camera1.IsCompleted &&
       Camera2.IsCompleted &&
@@ -24,6 +26,7 @@ public sealed class Inspection
       Camera2.Approved &&
       Camera3.Approved;
 
+
   public TimeSpan CycleTime =>
       new[]
       {
@@ -33,9 +36,10 @@ public sealed class Inspection
       }.Max();
 
   public InspectionResult Result =>
-    Approved
+    _manualResult ??
+    (Approved
         ? InspectionResult.Aprovada
-        : InspectionResult.Reprovada;
+        : InspectionResult.Reprovada);
 
   public CameraInspection GetCamera(int cameraId)
   {
@@ -46,5 +50,10 @@ public sealed class Inspection
       3 => Camera3,
       _ => throw new ArgumentOutOfRangeException(nameof(cameraId))
     };
+  }
+
+  public void Approve()
+  {
+    _manualResult = InspectionResult.Aprovada;
   }
 }

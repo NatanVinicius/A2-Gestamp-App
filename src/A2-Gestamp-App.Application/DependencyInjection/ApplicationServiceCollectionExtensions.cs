@@ -1,4 +1,5 @@
 using A2GestampApp.Application.Features.Inspection;
+using A2GestampApp.Application.Features.Ng;
 using A2GestampApp.Application.Startup;
 
 
@@ -18,6 +19,12 @@ public static class ApplicationServiceCollectionExtensions
     services.AddSingleton<IInspectionState, InspectionState>();
 
     services.AddSingleton<IInspectionStatisticsState, InspectionStatisticsState>();
+
+    services.AddSingleton<INgState, NgState>();
+
+    services.AddSingleton<IAuthenticatedUserState, AuthenticatedUserState>();
+
+    services.AddSingleton<IConfirmationDialogState, ConfirmationDialogState>();
 
     return services;
   }

@@ -1,7 +1,61 @@
 @page "/control"
+@using A2GestampApp.Client.Components.Pages.HomePage.Components
 
-<h3>ControlPage</h3>
+<div class="w-full h-full pr-2 flex flex-col gap-4">
+    <h3 class="text-white/60">
+        > Controle
+    </h3>
 
-@code {
+    <div class="bg-border rounded-md p-4 flex justify-between items-center">
+        <div>
+            <p>Olá,</p>
+            <p> @(UserState.User?.Name)</p>
+        </div>
+        <div class="flex flex-col items-center justify-center gap-2">
 
-}
+            <i class="@(CanChangeJudgment
+                                      ? "fa-solid fa-star text-xl text-yellow-500"
+                                      : "fa-solid fa-star text-xl text-white")"></i>
+
+            <p class="text-xs font-semibold">
+                @(CanChangeJudgment ? "Administrador" : "Operador")
+            </p>
+
+        </div>
+    </div>
+
+    <div class="flex-1 min-h-0 flex gap-4 overflow-hidden">
+        <Inspection CameraCount="3"
+                    CurrentIndex="@_currentIndex"
+                    CurrentIndexChanged="@(i => _currentIndex = i)"
+                    Camera="@CurrentCamera" />
+
+        <Tools Camera="@CurrentCamera" />
+    </div>
+
+    <div class="flex justify-end gap-4">
+
+        <button @onclick="ChangeJudgmentAsync"
+                disabled="@(!CanChangeJudgment)"
+                class="px-8 py-2 rounded-lg bg-red-500 transition font-semibold
+            disabled:opacity-20 disabled:cursor-not-allowed
+            hover:bg-red-500/80 cursor-pointer">
+
+            Alterar Julgamento
+
+        </button>
+
+        <button @onclick="SaveAsync"
+                disabled="@(!CanSave)"
+                class="px-8 py-2 rounded-lg bg-green-500 transition font-semibold
+            disabled:opacity-20 disabled:cursor-not-allowed
+            hover:bg-green-500/80 cursor-pointer">
+
+            Salvar
+
+        </button>
+
+    </div>
+</div>
+
+

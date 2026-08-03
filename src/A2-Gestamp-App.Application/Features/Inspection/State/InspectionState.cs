@@ -13,4 +13,9 @@ public sealed class InspectionState : IInspectionState
     CurrentInspection = inspection;
     InspectionChanged?.Invoke();
   }
+
+  public void NotifyChanged()
+  {
+    InspectionChanged?.Invoke();
+  }
 }
