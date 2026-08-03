@@ -9,4 +9,6 @@ public interface IInspectionState
   public event Action? InspectionChanged;
 
   public void SetInspection(DomainInspection inspection);
+
+  public void NotifyChanged();
 }

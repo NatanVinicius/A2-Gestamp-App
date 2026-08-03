@@ -1,20 +1,27 @@
 @using A2GestampApp.Client.Components.Layout.Header
+@using A2GestampApp.Client.Components.Shared.ConfirmationDialog
+@using A2GestampApp.Client.Components.Shared.NgPopUp
 @inherits LayoutComponentBase
 
 <div class="w-full h-full bg-background text-white flex flex-col overflow-hidden">
 
-    <Header/>
+    <Header />
 
     <div class="flex flex-1 overflow-hidden">
 
         <NavMenu />
 
         <MainContent>
-          @Body
+            @Body
         </MainContent>
 
     </div>
 
     <Footer />
+
+    <NgPopup />
+
+    
+    <ConfirmationDialog />
 
 </div>
