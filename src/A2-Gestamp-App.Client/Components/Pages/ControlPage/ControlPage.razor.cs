@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 using A2_Gestamp_App.Domain.Features.Inspection.Entities;
 
 using A2GestampApp.Application.Features.Inspection;
@@ -19,6 +17,9 @@ public partial class ControlPage : IDisposable
 
   [Inject]
   private NavigationManager Navigation { get; set; } = default!;
+
+  [Inject]
+  private IProductionShiftState ProductionShiftState { get; set; } = default!;
 
   [Inject]
   private IConfirmationDialogState ConfirmationDialog { get; set; } = default!;
@@ -92,6 +93,8 @@ public partial class ControlPage : IDisposable
 
   private async Task ConfirmChangeJudgmentAsync()
   {
+    var previousResult = _inspection?.FinalJudgement;
+
     _inspection?.Approve();
 
     if (_inspection is not null)
@@ -100,7 +103,14 @@ public partial class ControlPage : IDisposable
     }
 
 
-    Debug.WriteLine(_inspection?.Result);
+    if (previousResult is not null)
+    {
+      ProductionShiftState.CurrentShift.ChangeJudgement(
+    previousResult.Value,
+    _inspection!.FinalJudgement);
+
+      ProductionShiftState.NotifyStateChanged();
+    }
 
     LogoutOperator();
 

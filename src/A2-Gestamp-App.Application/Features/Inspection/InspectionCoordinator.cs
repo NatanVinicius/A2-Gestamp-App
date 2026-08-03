@@ -68,6 +68,7 @@ public sealed class InspectionCoordinator : IInspectionCoordinator
       return;
     }
 
+    _inspection.UpdateJudgements();
 
     DomainInspection completedInspection = _inspection;
 
