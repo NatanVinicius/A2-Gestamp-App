@@ -13,16 +13,22 @@
     </div>
   </div>
     <div class="relative flex-1 flex overflow-hidden px-4 pt-4">
-        <div class="w-full h-full flex items-center justify-center rounded-md shadow-lg overflow-hidden ">
+        <div class="relative w-full h-full flex items-center justify-center rounded-md shadow-lg overflow-hidden bg-black">
             @if (Camera?.HasImage == true)
             {
-                <img src="@Camera.ImagePath"
-                     class="w-full h-full object-fill" />
-            }
-            else
-            {
-                <span>Aguardando imagem...</span>
-            
+                @if (RenderMode == InspectionRenderMode.Image)
+                {
+                    <img src="@Camera.ImagePath"
+                         class="w-full h-full object-fill" />
+                }
+                else
+                {
+                    <!-- Imagem de fundo -->
+                    <img src="@Camera.ImagePath" class="object-contain" />
+
+                    <!-- O SVG tratado como Imagem (força o navegador a redimensionar proporcionalmente igual ao JPG) -->
+                    <img src="@Camera.OverlayPath" class="absolute inset-0 w-full h-full object-contain pointer-events-none" />
+                }
             }
         </div>
 

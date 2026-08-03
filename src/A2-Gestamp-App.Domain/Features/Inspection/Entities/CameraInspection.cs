@@ -10,6 +10,8 @@ public sealed class CameraInspection
 
   public string? ImagePath { get; private set; }
 
+  public string? OverlayPath { get; private set; }
+
   public IReadOnlyCollection<ToolInspection> Tools => _tools;
 
   public bool HasResult { get; private set; }
@@ -44,5 +46,10 @@ public sealed class CameraInspection
   public void SetImage(string imagePath)
   {
     ImagePath = imagePath;
+  }
+
+  public void SetOverlay(string overlayPath)
+  {
+    OverlayPath = overlayPath;
   }
 }
