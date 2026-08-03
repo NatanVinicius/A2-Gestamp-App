@@ -44,8 +44,12 @@ public sealed class ImageWatcherService : IImageWatcherService
 
   private async Task OnFileCreatedSafeAsync(int cameraId, string filePath)
   {
+    if (Path.GetExtension(filePath).Equals(".svg", StringComparison.OrdinalIgnoreCase))
+    {
+      return;
+    }
+
     Guid executionId = Guid.NewGuid();
-    Debug.WriteLine($"[{executionId}] INÍCIO | Camera={cameraId} | Arquivo={Path.GetFileName(filePath)}");
 
     // Tenta abrir o arquivo repetidamente até que a câmera termine de gravá-lo (máximo 5 segundos)
     bool arquivoLiberado = false;
@@ -54,7 +58,7 @@ public sealed class ImageWatcherService : IImageWatcherService
       try
       {
         // Tenta abrir com FileShare.Read para testar se a escrita acabou
-        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
         {
           if (stream.Length > 0)
           {
@@ -77,9 +81,14 @@ public sealed class ImageWatcherService : IImageWatcherService
       return;
     }
 
-    Debug.WriteLine($"[{executionId}] LIBERADO | Pronto para disparo");
+    Debug.WriteLine($"IMAGE READY {cameraId}");
+    Debug.WriteLine(filePath);
 
-    // Dispara para o fluxo normal do sistema
+    var info = new FileInfo(filePath);
+
+    Debug.WriteLine(info.Length);
+
+
     ImageReceived?.Invoke(new CameraImage(cameraId, filePath));
   }
 }

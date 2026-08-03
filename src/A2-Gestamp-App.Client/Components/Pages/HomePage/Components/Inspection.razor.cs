@@ -18,6 +18,10 @@ public partial class Inspection
   [Parameter]
   public EventCallback<int> CurrentIndexChanged { get; set; }
 
+  [Parameter]
+  public InspectionRenderMode RenderMode { get; set; }
+    = InspectionRenderMode.Image;
+
   private Task Next()
   {
     if (CameraCount <= 1)

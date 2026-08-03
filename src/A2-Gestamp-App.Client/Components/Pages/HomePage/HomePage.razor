@@ -4,21 +4,22 @@
 
 <div class="w-full h-full pr-2 flex flex-col gap-4">
 
-  <h3 class="text-white/60">
-    > Home
-  </h3>
+    <h3 class="text-white/60">
+        > Home
+    </h3>
 
-  <Stats />
+    <Stats />
 
-  <div class="flex-1 min-h-0 flex gap-4 overflow-hidden">
+    <div class="flex-1 min-h-0 flex gap-4 overflow-hidden">
 
-    <Inspection CameraCount="3"
-                CurrentIndex="@_currentIndex"
-                CurrentIndexChanged="@(i => _currentIndex = i)"
-                Camera="@CurrentCamera" />
+        <Inspection CameraCount="3"
+                    CurrentIndex="@_currentIndex"
+                    CurrentIndexChanged="@(i => _currentIndex = i)"
+                    Camera="@CurrentCamera"
+                    RenderMode="InspectionRenderMode.Image" />
 
-    <Tools Camera="@CurrentCamera" />
+        <Tools Camera="@CurrentCamera" />
 
-  </div>
+    </div>
 
 </div>
