@@ -15,8 +15,7 @@ internal sealed class ApplicationStartup : IApplicationStartup
   private readonly IInspectionCoordinator _inspectionCoordinator;
   private readonly IImageTransferService _imageTransferService;
   private readonly IInspectionState _inspectionState;
-  private readonly IInspectionStatisticsState _inspectionStatisticsState;
-  private readonly InspectionStatistics _statistics = new();
+  private readonly IProductionShiftState _productionShiftState;
   private readonly INgState _ngState;
   private readonly IFaceRecognitionService _faceRecognitionService;
   private readonly IAuthenticatedUserState _authenticatedUserState;
@@ -27,7 +26,7 @@ internal sealed class ApplicationStartup : IApplicationStartup
     IImageWatcherService imageWatcher,
     IInspectionCoordinator inspectionCoordinator,
     IInspectionState inspectionState,
-    IInspectionStatisticsState inspectionStatisticsState,
+    IProductionShiftState productionShiftState,
     INgState ngState,
     IFaceRecognitionService faceRecognitionService,
     IImageTransferService imageTransferService,
@@ -39,8 +38,8 @@ internal sealed class ApplicationStartup : IApplicationStartup
     _inspectionCoordinator = inspectionCoordinator;
     _imageTransferService = imageTransferService;
     _inspectionState = inspectionState;
+    _productionShiftState = productionShiftState;
     _ngState = ngState;
-    _inspectionStatisticsState = inspectionStatisticsState;
     _faceRecognitionService = faceRecognitionService;
     _authenticatedUserState = authenticatedUserState;
     _logger = logger;
@@ -70,13 +69,13 @@ internal sealed class ApplicationStartup : IApplicationStartup
   {
     _imageTransferService.Transfer(inspection);
 
-    _statistics.Register(inspection);
-
-    _inspectionStatisticsState.SetStatistics(_statistics);
+    _productionShiftState.RegisterInspection(
+    inspection.FinalJudgement,
+    inspection.CycleTime);
 
     _inspectionState.SetInspection(inspection);
 
-    if (inspection.Result == InspectionResult.Reprovada)
+    if (inspection.FinalJudgement == InspectionResult.Reprovada)
     {
       _ngState.Open();
     }

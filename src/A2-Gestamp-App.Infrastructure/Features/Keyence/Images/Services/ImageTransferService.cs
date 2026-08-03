@@ -29,7 +29,7 @@ public sealed class ImageTransferService : IImageTransferService
 
     string? rejectedFolder = null;
 
-    if (inspection.Result == InspectionResult.Reprovada)
+    if (inspection.FinalJudgement == InspectionResult.Reprovada)
     {
       rejectedFolder = Path.Combine(
           AppContext.BaseDirectory,

@@ -1,5 +1,3 @@
-
-
 using A2_Gestamp_App.Domain.Features.Inspection.Entities;
 
 using A2GestampApp.Domain.Features.Inspection.Enums;
@@ -14,7 +12,9 @@ public sealed class Inspection
 
   public CameraInspection Camera3 { get; } = new(3);
 
-  private InspectionResult? _manualResult;
+  public InspectionResult OriginalJudgement { get; private set; }
+
+  public InspectionResult FinalJudgement { get; private set; }
 
   public bool IsCompleted =>
       Camera1.IsCompleted &&
@@ -35,11 +35,12 @@ public sealed class Inspection
             Camera3.ExecutionTime
       }.Max();
 
-  public InspectionResult Result =>
-    _manualResult ??
-    (Approved
+  private InspectionResult CalculateOriginalJudgement()
+  {
+    return Approved
         ? InspectionResult.Aprovada
-        : InspectionResult.Reprovada);
+        : InspectionResult.Reprovada;
+  }
 
   public CameraInspection GetCamera(int cameraId)
   {
@@ -54,6 +55,16 @@ public sealed class Inspection
 
   public void Approve()
   {
-    _manualResult = InspectionResult.Aprovada;
+    FinalJudgement = InspectionResult.Aprovada;
+  }
+
+  public void UpdateJudgements()
+  {
+    OriginalJudgement = CalculateOriginalJudgement();
+
+    if (FinalJudgement == default)
+    {
+      FinalJudgement = OriginalJudgement;
+    }
   }
 }

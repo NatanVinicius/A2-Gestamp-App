@@ -18,13 +18,13 @@ public static class ApplicationServiceCollectionExtensions
 
     services.AddSingleton<IInspectionState, InspectionState>();
 
-    services.AddSingleton<IInspectionStatisticsState, InspectionStatisticsState>();
-
     services.AddSingleton<INgState, NgState>();
 
     services.AddSingleton<IAuthenticatedUserState, AuthenticatedUserState>();
 
     services.AddSingleton<IConfirmationDialogState, ConfirmationDialogState>();
+
+    services.AddSingleton<IProductionShiftState, ProductionShiftState>();
 
     return services;
   }
