@@ -1,11 +1,10 @@
-using A2GestampApp.Domain.Features.Inspection.Enums;
 using A2GestampApp.Domain.Features.ProductionShift.Entities;
 using A2GestampApp.Domain.Features.ProductionShift.Enums;
 
 public sealed class ProductionShiftState
     : IProductionShiftState
 {
-  public ProductionShift CurrentShift { get; }
+  public ProductionShift CurrentShift { get; private set; }
 
   public event Action? StateChanged;
 
@@ -17,19 +16,16 @@ public sealed class ProductionShiftState
         DateTime.Today.AddHours(15));
   }
 
-  public void RegisterInspection(
-    InspectionResult result,
-    TimeSpan cycleTime)
+  public void NotifyStateChanged()
   {
-    CurrentShift.RegisterInspection(
-        result,
-        cycleTime);
-
     StateChanged?.Invoke();
   }
 
-  public void NotifyStateChanged()
+  public void SetCurrentShift(
+    ProductionShift shift)
   {
+    CurrentShift = shift;
+
     StateChanged?.Invoke();
   }
 }

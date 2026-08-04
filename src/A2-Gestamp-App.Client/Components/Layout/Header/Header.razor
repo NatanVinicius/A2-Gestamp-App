@@ -14,28 +14,36 @@
 
     <div class="flex-1 flex justify-center text-xs">
         <div class="flex gap-4">
-
-            
-            
-                <div class="flex items-center gap-2">
-                    <div class=" w-2 h-2 rounded-full"></div>
-
-                    <p>Câmera </p>
-                </div>
-            
-
             <div class="flex items-center gap-2">
-                <div class="w-2 h-2 bg-gray-500 rounded-full"></div>
+                <div class="w-2 h-2 rounded-full @GetStatusColor(SystemState.GetCamera1Status())"></div>
 
+                <p>Câmera 1</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full @GetStatusColor(SystemState.GetCamera2Status())"></div>
+
+                <p>Câmera 2</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full @GetStatusColor(SystemState.GetCamera3Status())"></div>
+
+                <p>Câmera 3</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full @GetStatusColor(SystemState.GetPlcStatus())"></div>
                 <p>PLC</p>
             </div>
-
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full @GetStatusColor(SystemState.GetHikvisionStatus())"></div>
+                <p>Face Id</p>
+            </div>
         </div>
+
     </div>
 
     <div>
         <p class="text-xl">@CurrentTime</p>
-        <p class="text-[14.5px] text-white/70">@CurrentDate</p>
+        <p class="text-[13.5px] text-white/70">@CurrentDate</p>
     </div>
 
     <CommunicationSettingsModal @bind-IsOpen="IsCommunicationModalOpen" />

@@ -1,3 +1,4 @@
+using A2GestampApp.Infrastructure.Features.Database;
 using A2GestampApp.Infrastructure.Features.Images;
 using A2GestampApp.Infrastructure.Hikvision;
 
@@ -21,6 +22,8 @@ public static class InfrastructureServiceCollectionExtensions
     services.AddSingleton<FaceRecognitionServer>();
 
     services.AddSingleton<IFaceRecognitionService, HikvisionFaceRecognitionService>();
+
+    services.AddDatabase();
 
     return services;
   }

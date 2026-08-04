@@ -5,6 +5,8 @@ namespace A2GestampApp.Domain.Features.ProductionShift.Entities;
 
 public sealed class ProductionShift
 {
+  public int Id { get; private set; }
+
   public ProductionShiftNumber ShiftNumber { get; }
 
   public DateTime StartDate { get; }
@@ -23,6 +25,9 @@ public sealed class ProductionShift
 
   public bool IsClosed { get; private set; }
 
+  public bool IsExpired =>
+    DateTime.Now >= EndDate;
+
   public DateTime CreatedAt { get; } = DateTime.Now;
 
   public double RejectionRate =>
@@ -38,6 +43,41 @@ public sealed class ProductionShift
     ShiftNumber = shiftNumber;
     StartDate = startDate;
     EndDate = endDate;
+  }
+
+  public static ProductionShift CreateCurrent()
+  {
+    DateTime now = DateTime.Now;
+
+    DateTime today = now.Date;
+
+    if (now.TimeOfDay < new TimeSpan(6, 0, 0))
+    {
+      today = today.AddDays(-1);
+    }
+
+    if (now.TimeOfDay >= new TimeSpan(6, 0, 0) &&
+        now.TimeOfDay < new TimeSpan(14, 0, 0))
+    {
+      return new ProductionShift(
+          ProductionShiftNumber.Morning,
+          today.AddHours(6),
+          today.AddHours(14));
+    }
+
+    if (now.TimeOfDay >= new TimeSpan(14, 0, 0) &&
+        now.TimeOfDay < new TimeSpan(22, 0, 0))
+    {
+      return new ProductionShift(
+          ProductionShiftNumber.Afternoon,
+          today.AddHours(14),
+          today.AddHours(22));
+    }
+
+    return new ProductionShift(
+        ProductionShiftNumber.Night,
+        today.AddHours(22),
+        today.AddDays(1).AddHours(6));
   }
 
   public void RegisterInspection(

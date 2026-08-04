@@ -11,6 +11,10 @@ public sealed class FaceRecognitionServer : IDisposable
 
   public event Func<HttpListenerRequest, Task>? RequestReceived;
 
+  public event Action? Started;
+
+  public event Action? Stopped;
+
   public async Task StartAsync(int port)
   {
     if (_listener.IsListening)
@@ -21,6 +25,8 @@ public sealed class FaceRecognitionServer : IDisposable
     _listener.Prefixes.Add($"http://+:{port}/");
 
     _listener.Start();
+
+    Started?.Invoke();
 
     Debug.WriteLine("Listener started");
 
@@ -47,6 +53,7 @@ public sealed class FaceRecognitionServer : IDisposable
       }
       catch (Exception ex)
       {
+        Stopped?.Invoke();
         Debug.WriteLine(ex);
         throw;
       }
@@ -68,6 +75,7 @@ public sealed class FaceRecognitionServer : IDisposable
 
     if (_listener.IsListening)
     {
+      Stopped?.Invoke();
       _listener.Stop();
     }
 

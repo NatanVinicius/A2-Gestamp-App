@@ -13,7 +13,7 @@
     </div>
   </div>
     <div class="relative flex-1 flex overflow-hidden px-4 pt-4">
-        <div class="relative w-full h-full flex items-center justify-center rounded-md shadow-lg overflow-hidden bg-black">
+        <div class="relative w-full h-full flex items-center justify-center rounded-md shadow-lg overflow-hidden bg-black/50">
             @if (Camera?.HasImage == true)
             {
                 @if (RenderMode == InspectionRenderMode.Image)
@@ -29,6 +29,9 @@
                     <!-- O SVG tratado como Imagem (força o navegador a redimensionar proporcionalmente igual ao JPG) -->
                     <img src="@Camera.OverlayPath" class="absolute inset-0 w-full h-full object-contain pointer-events-none" />
                 }
+            } else
+            {
+                <p>Aguardando imagem...</p>
             }
         </div>
 
