@@ -6,11 +6,26 @@ namespace A2GestampApp.Domain.Features.Inspection.Entities;
 
 public sealed class Inspection
 {
+  public int Id { get; private set; }
+
+  public DateTime Date { get; private set; }
+
+  public string? OperatorName { get; private set; }
+
+  public string? EmployeeNumber { get; private set; }
+
+  public int? OperatorRole { get; private set; }
   public CameraInspection Camera1 { get; } = new(1);
 
   public CameraInspection Camera2 { get; } = new(2);
 
   public CameraInspection Camera3 { get; } = new(3);
+
+  public string FirstImagePath { get; private set; } = string.Empty;
+
+  public string SecondImagePath { get; private set; } = string.Empty;
+
+  public string ThirdImagePath { get; private set; } = string.Empty;
 
   public InspectionResult OriginalJudgement { get; private set; }
 
@@ -34,6 +49,13 @@ public sealed class Inspection
             Camera2.ExecutionTime,
             Camera3.ExecutionTime
       }.Max();
+
+  public int? ProductionShiftId { get; private set; }
+
+  public Inspection()
+  {
+    Date = DateTime.Now;
+  }
 
   private InspectionResult CalculateOriginalJudgement()
   {
@@ -62,9 +84,29 @@ public sealed class Inspection
   {
     OriginalJudgement = CalculateOriginalJudgement();
 
+    FirstImagePath = Camera1.ImagePath;
+    SecondImagePath = Camera2.ImagePath;
+    ThirdImagePath = Camera3.ImagePath;
+
     if (FinalJudgement == default)
     {
       FinalJudgement = OriginalJudgement;
     }
+  }
+
+  public void SetReviewer(
+    string name,
+    string employeeNumber,
+    int role)
+  {
+    OperatorName = name;
+    EmployeeNumber = employeeNumber;
+    OperatorRole = role;
+  }
+
+  public void LinkToProductionShift(
+    int productionShiftId)
+  {
+    ProductionShiftId = productionShiftId;
   }
 }

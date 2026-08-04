@@ -1,4 +1,3 @@
-using A2GestampApp.Domain.Features.Inspection.Enums;
 using A2GestampApp.Domain.Features.ProductionShift.Entities;
 
 public interface IProductionShiftState
@@ -7,9 +6,8 @@ public interface IProductionShiftState
 
   public event Action? StateChanged;
 
-  public void RegisterInspection(
-    InspectionResult result,
-    TimeSpan cycleTime);
+  public void SetCurrentShift(
+      ProductionShift shift);
 
   public void NotifyStateChanged();
 }

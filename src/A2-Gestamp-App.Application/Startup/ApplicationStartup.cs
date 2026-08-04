@@ -3,6 +3,7 @@ using A2GestampApp.Application.Features.Inspection;
 using A2GestampApp.Application.Features.Ng;
 using A2GestampApp.Domain.Features.Inspection.Entities;
 using A2GestampApp.Domain.Features.Inspection.Enums;
+using A2GestampApp.Domain.Features.ProductionShift.Entities;
 
 using Microsoft.Extensions.Logging;
 
@@ -11,6 +12,8 @@ namespace A2GestampApp.Application.Startup;
 internal sealed class ApplicationStartup : IApplicationStartup
 {
   private readonly IKeyenceService _keyenceService;
+  private readonly IProductionShiftRepository _productionShiftRepository;
+  private readonly IInspectionRepository _inspectionRepository;
   private readonly IImageWatcherService _imageWatcher;
   private readonly IInspectionCoordinator _inspectionCoordinator;
   private readonly IImageTransferService _imageTransferService;
@@ -23,6 +26,8 @@ internal sealed class ApplicationStartup : IApplicationStartup
 
   public ApplicationStartup(
     IKeyenceService keyenceService,
+    IProductionShiftRepository productionShiftRepository,
+    IInspectionRepository inspectionRepository,
     IImageWatcherService imageWatcher,
     IInspectionCoordinator inspectionCoordinator,
     IInspectionState inspectionState,
@@ -34,6 +39,8 @@ internal sealed class ApplicationStartup : IApplicationStartup
     ILogger<ApplicationStartup> logger)
   {
     _keyenceService = keyenceService;
+    _productionShiftRepository = productionShiftRepository;
+    _inspectionRepository = inspectionRepository;
     _imageWatcher = imageWatcher;
     _inspectionCoordinator = inspectionCoordinator;
     _imageTransferService = imageTransferService;
@@ -49,6 +56,21 @@ internal sealed class ApplicationStartup : IApplicationStartup
 
   public async Task StartAsync()
   {
+    ProductionShift? shift =
+    await _productionShiftRepository.GetCurrentAsync();
+
+
+    if (shift is null)
+    {
+
+      shift = ProductionShift.CreateCurrent();
+
+      await _productionShiftRepository.AddAsync(shift);
+
+    }
+
+    _productionShiftState.SetCurrentShift(shift);
+
     _keyenceService.InspectionReceived += _inspectionCoordinator.Process;
     _imageWatcher.ImageReceived += _inspectionCoordinator.Process;
 
@@ -65,22 +87,40 @@ internal sealed class ApplicationStartup : IApplicationStartup
     _logger.LogInformation("Application started.");
   }
 
-  private void OnInspectionCompleted(Inspection inspection)
+  private async void OnInspectionCompleted(Inspection inspection)
   {
-    _imageTransferService.Transfer(inspection);
-
-    _productionShiftState.RegisterInspection(
-    inspection.FinalJudgement,
-    inspection.CycleTime);
-
-    _inspectionState.SetInspection(inspection);
-
-    if (inspection.FinalJudgement == InspectionResult.Reprovada)
+    try
     {
-      _ngState.Open();
-    }
+      _imageTransferService.Transfer(inspection);
 
-    _logger.LogInformation("Inspeção concluída.");
+      await EnsureCurrentShiftAsync();
+
+      inspection.LinkToProductionShift(
+          _productionShiftState.CurrentShift.Id);
+
+      await _inspectionRepository.AddAsync(inspection);
+
+      _productionShiftState.CurrentShift.RegisterInspection(
+          inspection.FinalJudgement,
+          inspection.CycleTime);
+
+      await _productionShiftRepository.UpdateAsync(
+          _productionShiftState.CurrentShift);
+
+      _productionShiftState.NotifyStateChanged();
+
+      _inspectionState.SetInspection(inspection);
+
+      if (inspection.FinalJudgement == InspectionResult.Reprovada)
+      {
+        _ngState.Open();
+      }
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Erro ao persistir inspeção.");
+      throw;
+    }
   }
 
   private async void OnUserRecognized(FaceRecognitionEvent e)
@@ -88,5 +128,38 @@ internal sealed class ApplicationStartup : IApplicationStartup
     _authenticatedUserState.SetUser(e);
 
     await _ngState.SetSuccessAsync();
+  }
+
+  private async Task EnsureCurrentShiftAsync()
+  {
+
+    ProductionShift currentShift =
+        _productionShiftState.CurrentShift;
+
+    _logger.LogInformation(
+    "Agora: {Now} | Início: {Start} | Fim: {End} | Expirado: {Expired}",
+    DateTime.Now,
+    currentShift.StartDate,
+    currentShift.EndDate,
+    currentShift.IsExpired);
+
+    if (!currentShift.IsExpired)
+    {
+      _logger.LogInformation("Turno ainda válido.");
+      return;
+    }
+
+    _logger.LogInformation("Turno expirado. Criando novo turno.");
+
+    currentShift.Close();
+
+    await _productionShiftRepository.UpdateAsync(currentShift);
+
+    ProductionShift newShift =
+        ProductionShift.CreateCurrent();
+
+    await _productionShiftRepository.AddAsync(newShift);
+
+    _productionShiftState.SetCurrentShift(newShift);
   }
 }

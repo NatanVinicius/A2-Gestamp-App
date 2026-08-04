@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 
+using A2GestampApp.Application.Features.System;
 using A2GestampApp.Infrastructure.Hikvision.Models;
 
 namespace A2GestampApp.Infrastructure.Hikvision;
@@ -9,6 +10,7 @@ public sealed class HikvisionFaceRecognitionService : IFaceRecognitionService
 {
   private readonly FaceRecognitionServer _server;
   private readonly HikvisionClient _client;
+  private readonly ISystemState _systemState;
 
   private const string DeviceAddress = "192.168.70.40";
 
@@ -17,13 +19,17 @@ public sealed class HikvisionFaceRecognitionService : IFaceRecognitionService
   public event Action<FaceRecognitionEvent>? UserRecognized;
 
   public HikvisionFaceRecognitionService(
-      HikvisionClient client,
-      FaceRecognitionServer server)
+    HikvisionClient client,
+    FaceRecognitionServer server,
+    ISystemState systemState)
   {
     _client = client;
     _server = server;
+    _systemState = systemState;
 
     _server.RequestReceived += OnRequestReceived;
+    _server.Started += OnServerStarted;
+    _server.Stopped += OnServerStopped;
   }
 
   public async Task StartAsync()
@@ -105,5 +111,24 @@ public sealed class HikvisionFaceRecognitionService : IFaceRecognitionService
   public Task DisableAsync()
   {
     return _client.SetCardReaderEnabledAsync(false);
+  }
+
+  private void OnServerStarted()
+  {
+    _systemState.SetHikvisionStatus(
+        CommunicationStatus.Connected);
+  }
+
+  private void OnServerStopped()
+  {
+    _systemState.SetHikvisionStatus(
+        CommunicationStatus.Disconnected);
+  }
+
+  public void Dispose()
+  {
+    _server.RequestReceived -= OnRequestReceived;
+    _server.Started -= OnServerStarted;
+    _server.Stopped -= OnServerStopped;
   }
 }

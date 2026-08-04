@@ -16,10 +16,10 @@ public partial class ControlPage : IDisposable
   private IInspectionState InspectionState { get; set; } = default!;
 
   [Inject]
-  private NavigationManager Navigation { get; set; } = default!;
+  private IInspectionReviewService InspectionReviewService { get; set; } = default!;
 
   [Inject]
-  private IProductionShiftState ProductionShiftState { get; set; } = default!;
+  private NavigationManager Navigation { get; set; } = default!;
 
   [Inject]
   private IConfirmationDialogState ConfirmationDialog { get; set; } = default!;
@@ -72,11 +72,17 @@ public partial class ControlPage : IDisposable
 
   private async Task SaveAsync()
   {
-    // TODO: salvar inspeção
+    if (_inspection is null ||
+        UserState.User is null)
+    {
+      return;
+    }
+
+    await InspectionReviewService.SaveReviewAsync(
+        _inspection,
+        UserState.User);
 
     LogoutOperator();
-
-    await Task.CompletedTask;
   }
 
   private Task ChangeJudgmentAsync()
@@ -93,28 +99,17 @@ public partial class ControlPage : IDisposable
 
   private async Task ConfirmChangeJudgmentAsync()
   {
-    var previousResult = _inspection?.FinalJudgement;
-
-    _inspection?.Approve();
-
-    if (_inspection is not null)
+    if (_inspection is null ||
+        UserState.User is null)
     {
-      InspectionState.SetInspection(_inspection);
+      return;
     }
 
-
-    if (previousResult is not null)
-    {
-      ProductionShiftState.CurrentShift.ChangeJudgement(
-    previousResult.Value,
-    _inspection!.FinalJudgement);
-
-      ProductionShiftState.NotifyStateChanged();
-    }
+    await InspectionReviewService.ApproveAsync(
+        _inspection,
+        UserState.User);
 
     LogoutOperator();
-
-    await Task.CompletedTask;
   }
 
   public void Dispose()

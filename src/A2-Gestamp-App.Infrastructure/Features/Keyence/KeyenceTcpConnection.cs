@@ -32,6 +32,8 @@ public sealed class KeyenceTcpConnection : IDisposable
 
   public event Action<CameraMessage>? MessageReceived;
 
+  public event Action<KeyenceTcpConnection>? Connected;
+  public event Action<KeyenceTcpConnection>? Disconnected;
   public async Task ConnectAsync(
     CancellationToken cancellationToken = default)
   {
@@ -50,6 +52,7 @@ public sealed class KeyenceTcpConnection : IDisposable
         cancellationToken);
 
       _camera.isConnected = true;
+      Connected?.Invoke(this);
     }
     catch (Exception ex)
     {
@@ -59,6 +62,7 @@ public sealed class KeyenceTcpConnection : IDisposable
           _camera.Name);
 
       _camera.isConnected = false;
+      Disconnected?.Invoke(this);
       throw;
     }
 
@@ -97,6 +101,7 @@ public sealed class KeyenceTcpConnection : IDisposable
 
         if (bytesRead == 0)
         {
+          Disconnected?.Invoke(this);
           break;
         }
 

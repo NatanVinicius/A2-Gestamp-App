@@ -48,6 +48,14 @@ public static class MauiProgram
 
     MauiApp app = builder.Build();
 
+    using IServiceScope scope =
+        app.Services.CreateScope();
+
+    DatabaseInitializer initializer =
+        scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
+
+    initializer.Initialize();
+
     return app;
   }
 

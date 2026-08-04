@@ -17,3 +17,11 @@ body,
 body {
   overflow: hidden;
 }
+
+.nav-item {
+  @apply w-14 h-14 flex flex-col items-center justify-center gap-3 rounded-md border border-transparent cursor-pointer transition-all duration-200;
+}
+
+.nav-item.active {
+  @apply w-16 h-16 bg-primary/40 border border-primary;
+}

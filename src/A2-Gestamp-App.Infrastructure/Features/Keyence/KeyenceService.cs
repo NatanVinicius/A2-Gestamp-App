@@ -1,4 +1,5 @@
 using A2GestampApp.Application.Features.Keyence.Models;
+using A2GestampApp.Application.Features.System;
 
 using Infrastructure.Features.Keyence;
 using Infrastructure.Features.Keyence.Parsers;
@@ -19,16 +20,22 @@ public sealed class KeyenceService : IKeyenceService
 
   public event Action<CameraInspectionResult>? InspectionReceived;
 
+  private readonly ISystemState _systemState;
+
   public KeyenceService(
     KeyenceOptions options,
     CameraMessageParser parser,
     ILogger<KeyenceService> logger,
+    ISystemState systemState,
     ILogger<KeyenceTcpConnection> connectionLogger)
   {
     _options = options;
     _logger = logger;
     _connectionLogger = connectionLogger;
+    _systemState = systemState;
     _parser = parser;
+
+
   }
 
   public async Task StartAsync(
@@ -41,6 +48,8 @@ public sealed class KeyenceService : IKeyenceService
           _connectionLogger);
 
       connection.MessageReceived += OnMessageReceived;
+      connection.Connected += OnConnected;
+      connection.Disconnected += OnDisconnected;
 
       _connections.Add(connection);
 
@@ -56,6 +65,8 @@ public sealed class KeyenceService : IKeyenceService
     foreach (var connection in _connections)
     {
       connection.MessageReceived -= OnMessageReceived;
+      connection.Connected -= OnConnected;
+      connection.Disconnected -= OnDisconnected;
 
       await connection.DisconnectAsync();
 
@@ -73,5 +84,45 @@ public sealed class KeyenceService : IKeyenceService
     var inspection = _parser.Parse(message.RawMessage);
 
     InspectionReceived?.Invoke(inspection);
+  }
+
+  private void OnConnected(KeyenceTcpConnection connection)
+  {
+    switch (connection.Camera.Name)
+    {
+      case "VS1":
+        _systemState.SetCamera1Status(CommunicationStatus.Connected);
+        break;
+
+      case "VS2":
+        _systemState.SetCamera2Status(CommunicationStatus.Connected);
+        break;
+
+      case "VS3":
+        _systemState.SetCamera3Status(CommunicationStatus.Connected);
+        break;
+    }
+  }
+
+  private void OnDisconnected(KeyenceTcpConnection connection)
+  {
+    _logger.LogInformation(
+        "OnConnected disparado para {Camera}",
+        connection.Camera.Name);
+
+    switch (connection.Camera.Name)
+    {
+      case "VS1":
+        _systemState.SetCamera1Status(CommunicationStatus.Disconnected);
+        break;
+
+      case "VS2":
+        _systemState.SetCamera2Status(CommunicationStatus.Disconnected);
+        break;
+
+      case "VS3":
+        _systemState.SetCamera3Status(CommunicationStatus.Disconnected);
+        break;
+    }
   }
 }
