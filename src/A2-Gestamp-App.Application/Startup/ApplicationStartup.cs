@@ -22,6 +22,7 @@ internal sealed class ApplicationStartup : IApplicationStartup
   private readonly INgState _ngState;
   private readonly IFaceRecognitionService _faceRecognitionService;
   private readonly IAuthenticatedUserState _authenticatedUserState;
+  private readonly IPlcService _plcService;
   private readonly ILogger<ApplicationStartup> _logger;
 
   public ApplicationStartup(
@@ -36,6 +37,7 @@ internal sealed class ApplicationStartup : IApplicationStartup
     IFaceRecognitionService faceRecognitionService,
     IImageTransferService imageTransferService,
     IAuthenticatedUserState authenticatedUserState,
+    IPlcService plcService,
     ILogger<ApplicationStartup> logger)
   {
     _keyenceService = keyenceService;
@@ -49,6 +51,7 @@ internal sealed class ApplicationStartup : IApplicationStartup
     _ngState = ngState;
     _faceRecognitionService = faceRecognitionService;
     _authenticatedUserState = authenticatedUserState;
+    _plcService = plcService;
     _logger = logger;
 
     _faceRecognitionService.UserRecognized += OnUserRecognized;
@@ -84,6 +87,17 @@ internal sealed class ApplicationStartup : IApplicationStartup
 
     await _faceRecognitionService.DisableAsync();
 
+    try
+    {
+      await _plcService.ConnectAsync();
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(
+          ex,
+          "Unable to connect to PLC.");
+    }
+
     _logger.LogInformation("Application started.");
   }
 
@@ -108,6 +122,19 @@ internal sealed class ApplicationStartup : IApplicationStartup
           _productionShiftState.CurrentShift);
 
       _productionShiftState.NotifyStateChanged();
+
+      if (inspection.FinalJudgement == InspectionResult.Aprovada)
+      {
+        await _plcService.WriteAsync(
+            PlcRegisters.Approved,
+            1);
+      }
+      else
+      {
+        await _plcService.WriteAsync(
+            PlcRegisters.Rejected,
+            1);
+      }
 
       _inspectionState.SetInspection(inspection);
 
@@ -161,5 +188,19 @@ internal sealed class ApplicationStartup : IApplicationStartup
     await _productionShiftRepository.AddAsync(newShift);
 
     _productionShiftState.SetCurrentShift(newShift);
+  }
+
+  public async Task StopAsync()
+  {
+    try
+    {
+      await _plcService.DisconnectAsync();
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(
+          ex,
+          "Error disconnecting PLC.");
+    }
   }
 }

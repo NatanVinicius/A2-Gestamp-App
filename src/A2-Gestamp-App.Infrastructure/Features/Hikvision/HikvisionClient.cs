@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -53,8 +52,6 @@ $"""
     using var response = await _httpClient.SendAsync(request);
 
     var body = await response.Content.ReadAsStringAsync();
-
-    Debug.WriteLine(body);
 
     response.EnsureSuccessStatusCode();
   }
@@ -149,14 +146,9 @@ $$"""
         Encoding.UTF8,
         "application/json");
 
-    Debug.WriteLine(json);
-
     var response = await _httpClient.SendAsync(request);
 
     var body = await response.Content.ReadAsStringAsync();
-
-    Debug.WriteLine(response.StatusCode);
-    Debug.WriteLine(body);
 
     response.EnsureSuccessStatusCode();
   }

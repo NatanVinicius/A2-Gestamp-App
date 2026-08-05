@@ -25,6 +25,24 @@ namespace A2GestampApp.Client
       window.Height = 800;
 #endif
 
+      window.Destroying += async (_, _) =>
+      {
+        try
+        {
+          IApplicationStartup startup =
+              Handler?.MauiContext?.Services.GetRequiredService<IApplicationStartup>()
+              ?? throw new InvalidOperationException();
+
+          await startup.StopAsync();
+        }
+        catch
+        {
+          // Ignora qualquer erro no encerramento.
+        }
+      };
+
+      return window;
+
       return window;
     }
   }

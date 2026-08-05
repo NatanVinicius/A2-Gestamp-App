@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text.Json; // <-- Adicionado para serialização
 
 using A2_Gestamp_App.Domain.Features.Inspection.Entities;
@@ -40,9 +39,7 @@ public sealed class InspectionCoordinator : IInspectionCoordinator
             result.Header.ExecutionTime,
             tools);
 
-    // Serializa o objeto Inspection inteiro para JSON
     string inspectionJson = JsonSerializer.Serialize(_inspection, _jsonOptions);
-    Debug.WriteLine($"[Inspection Atualizada - CameraResult {result.Header.CameraId}]}}:\n{inspectionJson}");
 
     TryCompleteInspection();
   }
@@ -55,7 +52,6 @@ public sealed class InspectionCoordinator : IInspectionCoordinator
 
     // Serializa o objeto Inspection inteiro para JSON
     string inspectionJson = JsonSerializer.Serialize(_inspection, _jsonOptions);
-    Debug.WriteLine($"[Inspection Atualizada - CameraImage {image.CameraId}]}}:\n{inspectionJson}");
 
     TryCompleteInspection();
   }

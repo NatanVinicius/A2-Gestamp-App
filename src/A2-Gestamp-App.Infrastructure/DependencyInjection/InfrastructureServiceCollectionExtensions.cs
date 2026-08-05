@@ -1,5 +1,6 @@
 using A2GestampApp.Infrastructure.Features.Database;
 using A2GestampApp.Infrastructure.Features.Images;
+using A2GestampApp.Infrastructure.Features.Plc;
 using A2GestampApp.Infrastructure.Hikvision;
 
 using Microsoft.Extensions.Configuration;
@@ -24,6 +25,8 @@ public static class InfrastructureServiceCollectionExtensions
     services.AddSingleton<IFaceRecognitionService, HikvisionFaceRecognitionService>();
 
     services.AddDatabase();
+
+    services.AddSingleton<IPlcService, PlcService>();
 
     return services;
   }
