@@ -337,6 +337,24 @@
   .max-w-lg {
     max-width: var(--container-lg);
   }
+  .min-w-20 {
+    min-width: calc(var(--spacing) * 20);
+  }
+  .min-w-21 {
+    min-width: calc(var(--spacing) * 21);
+  }
+  .min-w-22 {
+    min-width: calc(var(--spacing) * 22);
+  }
+  .min-w-25 {
+    min-width: calc(var(--spacing) * 25);
+  }
+  .min-w-30 {
+    min-width: calc(var(--spacing) * 30);
+  }
+  .min-w-80 {
+    min-width: calc(var(--spacing) * 80);
+  }
   .flex-1 {
     flex: 1;
   }
@@ -482,9 +500,6 @@
   .bg-background {
     background-color: var(--color-background);
   }
-  .bg-black {
-    background-color: var(--color-black);
-  }
   .bg-black\/40 {
     background-color: color-mix(in srgb, #000 40%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -505,9 +520,6 @@
   }
   .bg-gray-400 {
     background-color: var(--color-gray-400);
-  }
-  .bg-gray-500 {
-    background-color: var(--color-gray-500);
   }
   .bg-green-500 {
     background-color: var(--color-green-500);
@@ -640,9 +652,6 @@
   }
   .text-\[13\.5px\] {
     font-size: 13.5px;
-  }
-  .text-\[14\.5px\] {
-    font-size: 14.5px;
   }
   .text-\[14px\] {
     font-size: 14px;

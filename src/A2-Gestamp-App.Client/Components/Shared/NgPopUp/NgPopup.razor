@@ -1,75 +1,75 @@
-@if (NgState.IsOpen)
+﻿@if (NgState.IsOpen)
 {
-    <div class="fixed inset-0 z-50 backdrop-blur-sm flex items-center justify-center">
-        <div class="w-[500px] rounded-xl bg-border shadow-2xl overflow-hidden">
-            <div class="p-8">
-                <div class="flex flex-col items-center text-center">
-                    <i class="fa-solid fa-triangle-exclamation text-8xl text-primary"></i>
-                    <h3 class="text-2xl font-semibold text-white mt-4">
-                        Inspeção Reprovada
-                    </h3>
-                    <p class="mt-4 text-white/70 max-w-lg leading-7">
-                        Autentifique-se no sistema para prosseguir.
-                    </p>
-                    <span class="text-white/30 text-sm max-w-lg leading-7">
-                        Clique no botão abaixo e direcione-se para o dispositivo de reconhecimento.
-                    </span>
-                    <button @onclick="OnStartRecognition"
-                            disabled="@(NgState.Status == FaceRecognitionStatus.Recognizing)"
-                            class="mt-8 px-8 py-3 rounded-lg bg-primary hover:bg-primary/80 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+	<div class="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+		<div class="w-[500px] overflow-hidden rounded-xl bg-border shadow-2xl">
+			<div class="p-8">
+				<div class="flex flex-col items-center text-center">
+					<i class="fa-solid fa-triangle-exclamation text-8xl text-primary"></i>
+					<h3 class="mt-4 text-2xl font-semibold text-white">
+						Inspeção Reprovada
+					</h3>
+					<p class="mt-4 max-w-lg leading-7 text-white/70">
+						Autentifique-se no sistema para prosseguir.
+					</p>
+					<span class="max-w-lg text-sm leading-7 text-white/30">
+						Clique no botão abaixo e direcione-se para o dispositivo de reconhecimento.
+					</span>
+					<button @onclick="OnStartRecognition"
+							disabled="@(NgState.Status == FaceRecognitionStatus.Recognizing)"
+							class="mt-8 cursor-pointer rounded-lg bg-primary px-8 py-3 font-semibold transition hover:bg-primary/80 disabled:cursor-not-allowed disabled:opacity-50">
 
-                        <i class="fa-regular fa-id-badge"></i>
+						<i class="fa-regular fa-id-badge"></i>
 
-                        @(NgState.Status == FaceRecognitionStatus.Recognizing
-                            ? "Reconhecendo..."
-                            : "Habilitar Face ID")
+						@(NgState.Status == FaceRecognitionStatus.Recognizing
+							? "Reconhecendo..."
+							: "Habilitar Face ID")
 
-                    </button>
-                    @if (NgState.Status == FaceRecognitionStatus.Recognizing)
-                    {
-                        <div class="mt-8">
-                            <p class="text-sm text-white/60">
-                                Tempo restante
-                            </p>
-                            <p class="text-4xl font-bold text-primary mt-2">
-                                @NgState.RemainingSeconds s
-                            </p>
-                        </div>
-                    }
-                    <div class="mt-8 w-full rounded-lg px-5 py-4
-                        @(NgState.Status switch
-                         {
-                             FaceRecognitionStatus.Waiting => "bg-primary/10 border border-primary/30",
-                             FaceRecognitionStatus.Recognizing => "bg-yellow-500/10 border border-yellow-500/30",
-                             FaceRecognitionStatus.Success => "bg-green-500/10 border border-green-500/30",
-                             FaceRecognitionStatus.Failed => "bg-red-500/10 border border-red-500/30",
-                             _ => "bg-primary/10 border border-primary/30"
-                         })">
-                        <div class="flex items-center justify-center gap-3">
-                            <i class="fa-solid fa-circle-info text-white"/>
-                            <span class="text-white/80 text-sm">
-                                @(NgState.Status switch
-                                {
-                                    FaceRecognitionStatus.Waiting =>
-                                        "Aguardando início da autenticação.",
+					</button>
+					@if (NgState.Status == FaceRecognitionStatus.Recognizing)
+					{
+						<div class="mt-8">
+							<p class="text-sm text-white/60">
+								Tempo restante
+							</p>
+							<p class="mt-2 text-4xl font-bold text-primary">
+								@NgState.RemainingSeconds s
+							</p>
+						</div>
+					}
+					<div class="mt-8 w-full rounded-lg px-5 py-4
+						@(NgState.Status switch
+						 {
+							 FaceRecognitionStatus.Waiting => "bg-primary/10 border border-primary/30",
+							 FaceRecognitionStatus.Recognizing => "bg-yellow-500/10 border border-yellow-500/30",
+							 FaceRecognitionStatus.Success => "bg-green-500/10 border border-green-500/30",
+							 FaceRecognitionStatus.Failed => "bg-red-500/10 border border-red-500/30",
+							 _ => "bg-primary/10 border border-primary/30"
+						 })">
+						<div class="flex items-center justify-center gap-3">
+							<i class="fa-solid fa-circle-info text-white" />
+							<span class="text-sm text-white/80">
+								@(NgState.Status switch
+								{
+									FaceRecognitionStatus.Waiting =>
+										"Aguardando início da autenticação.",
 
-                                    FaceRecognitionStatus.Recognizing =>
-                                        "Reconhecimento facial em andamento...",
+									FaceRecognitionStatus.Recognizing =>
+										"Reconhecimento facial em andamento...",
 
-                                    FaceRecognitionStatus.Success =>
-                                        "Operador reconhecido com sucesso. Redirecionando...",
+									FaceRecognitionStatus.Success =>
+										"Operador reconhecido com sucesso. Redirecionando...",
 
-                                    FaceRecognitionStatus.Failed =>
-                                        "Operador não reconhecido. Tente novamente.",
+									FaceRecognitionStatus.Failed =>
+										"Operador não reconhecido. Tente novamente.",
 
-                                    _ =>
-                                        string.Empty
-                                })
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+									_ =>
+										string.Empty
+								})
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 }
