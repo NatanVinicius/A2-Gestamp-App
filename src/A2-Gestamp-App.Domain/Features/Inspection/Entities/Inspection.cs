@@ -42,13 +42,7 @@ public sealed class Inspection
       Camera3.Approved;
 
 
-  public TimeSpan CycleTime =>
-      new[]
-      {
-            Camera1.ExecutionTime,
-            Camera2.ExecutionTime,
-            Camera3.ExecutionTime
-      }.Max();
+  public TimeSpan CycleTime { get; private set; }
 
   public int? ProductionShiftId { get; private set; }
 
@@ -87,6 +81,13 @@ public sealed class Inspection
     FirstImagePath = Camera1.ImagePath;
     SecondImagePath = Camera2.ImagePath;
     ThirdImagePath = Camera3.ImagePath;
+
+    CycleTime = new[]
+    {
+        Camera1.ExecutionTime,
+        Camera2.ExecutionTime,
+        Camera3.ExecutionTime
+    }.Max();
 
     if (FinalJudgement == default)
     {

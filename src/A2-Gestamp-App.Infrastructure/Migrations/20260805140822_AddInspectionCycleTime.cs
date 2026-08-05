@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace A2GestampApp.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class AddInspectionCycleTime : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -26,6 +26,7 @@ namespace A2GestampApp.Infrastructure.Migrations
                     ThirdImagePath = table.Column<string>(type: "TEXT", nullable: false),
                     OriginalJudgement = table.Column<string>(type: "TEXT", nullable: false),
                     FinalJudgement = table.Column<string>(type: "TEXT", nullable: false),
+                    CycleTime = table.Column<TimeSpan>(type: "TEXT", nullable: false),
                     ProductionShiftId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>

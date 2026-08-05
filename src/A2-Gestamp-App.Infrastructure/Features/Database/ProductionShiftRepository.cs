@@ -1,4 +1,5 @@
 using A2GestampApp.Domain.Features.ProductionShift.Entities;
+using A2GestampApp.Domain.Features.ProductionShift.Enums;
 using A2GestampApp.Infrastructure.Features.Database;
 
 using Microsoft.EntityFrameworkCore;
@@ -37,5 +38,33 @@ public sealed class ProductionShiftRepository
     _context.ProductionShifts.Update(shift);
 
     await _context.SaveChangesAsync(cancellationToken);
+  }
+
+  public async Task<List<ProductionShift>> GetAsync(
+    DateOnly? date,
+    ProductionShiftNumber? shift,
+    CancellationToken cancellationToken = default)
+  {
+    var query = _context.ProductionShifts
+    .AsNoTracking()
+    .AsQueryable();
+
+    if (date is not null)
+    {
+      var selectedDate = date.Value.ToDateTime(TimeOnly.MinValue);
+
+      query = query.Where(x =>
+          x.StartDate.Date == selectedDate.Date);
+    }
+
+    if (shift is not null)
+    {
+      query = query.Where(x =>
+          x.ShiftNumber == shift);
+    }
+
+    return await query
+        .OrderByDescending(x => x.StartDate)
+        .ToListAsync(cancellationToken);
   }
 }

@@ -24,10 +24,11 @@ internal sealed class InspectionConfiguration
     builder.Ignore(x => x.Camera1);
     builder.Ignore(x => x.Camera2);
     builder.Ignore(x => x.Camera3);
+    builder.Property(x => x.CycleTime)
+        .IsRequired();
 
     builder.Ignore(x => x.IsCompleted);
     builder.Ignore(x => x.Approved);
-    builder.Ignore(x => x.CycleTime);
 
     builder.Property(x => x.FirstImagePath)
     .IsRequired();
