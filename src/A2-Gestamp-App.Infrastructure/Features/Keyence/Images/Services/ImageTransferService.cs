@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 using A2_Gestamp_App.Domain.Features.Inspection.Entities;
 
 using A2GestampApp.Application.Features.Images.Services;
@@ -23,10 +21,6 @@ public sealed class ImageTransferService : IImageTransferService
 
   public void Transfer(Inspection inspection)
   {
-
-    Debug.WriteLine($"TRANSFER {DateTime.Now:HH:mm:ss.fff}");
-
-
     string? rejectedFolder = null;
 
     if (inspection.FinalJudgement == InspectionResult.Reprovada)
@@ -58,14 +52,6 @@ public sealed class ImageTransferService : IImageTransferService
 
     var sourceImage = camera.ImagePath;
     var sourceOverlay = Path.ChangeExtension(sourceImage, ".svg");
-
-
-
-    Debug.WriteLine($"CAM {camera.CameraId}");
-    Debug.WriteLine(sourceImage);
-    Debug.WriteLine(File.Exists(sourceImage));
-    Debug.WriteLine(File.Exists(sourceOverlay));
-
 
     WaitFileAvailable(sourceImage);
     WaitFileAvailable(sourceOverlay);
@@ -165,8 +151,6 @@ public sealed class ImageTransferService : IImageTransferService
             $"VS{camera.CameraId}",
             overlayName)
         .Replace('\\', '/'));
-
-    Debug.WriteLine($"END CAM {camera.CameraId}");
   }
 
   private static void WaitFileAvailable(string path)

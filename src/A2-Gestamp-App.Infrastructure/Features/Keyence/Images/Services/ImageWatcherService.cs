@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace A2GestampApp.Infrastructure.Features.Images.Services;
 
 public sealed class ImageWatcherService : IImageWatcherService
@@ -77,17 +75,10 @@ public sealed class ImageWatcherService : IImageWatcherService
 
     if (!arquivoLiberado)
     {
-      Debug.WriteLine($"[{executionId}] FALHA: O arquivo permaneceu bloqueado ou vazio.");
       return;
     }
 
-    Debug.WriteLine($"IMAGE READY {cameraId}");
-    Debug.WriteLine(filePath);
-
     var info = new FileInfo(filePath);
-
-    Debug.WriteLine(info.Length);
-
 
     ImageReceived?.Invoke(new CameraImage(cameraId, filePath));
   }

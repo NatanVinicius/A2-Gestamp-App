@@ -10,17 +10,20 @@ internal sealed class InspectionReviewService : IInspectionReviewService
   private readonly IProductionShiftRepository _productionShiftRepository;
   private readonly IInspectionState _inspectionState;
   private readonly IProductionShiftState _productionShiftState;
+  private readonly IPlcService _plcService;
 
   public InspectionReviewService(
       IInspectionRepository inspectionRepository,
       IProductionShiftRepository productionShiftRepository,
       IInspectionState inspectionState,
-      IProductionShiftState productionShiftState)
+      IProductionShiftState productionShiftState,
+      IPlcService plcService)
   {
     _inspectionRepository = inspectionRepository;
     _productionShiftRepository = productionShiftRepository;
     _inspectionState = inspectionState;
     _productionShiftState = productionShiftState;
+    _plcService = plcService;
   }
 
   public async Task SaveReviewAsync(
@@ -36,6 +39,10 @@ internal sealed class InspectionReviewService : IInspectionReviewService
     await _inspectionRepository.UpdateAsync(
         inspection,
         cancellationToken);
+
+    await _plcService.WriteAsync(
+        PlcRegisters.ManualJudgement,
+        1);
 
     _inspectionState.SetInspection(inspection);
   }

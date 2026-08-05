@@ -27,8 +27,6 @@ public sealed class FaceRecognitionServer : IDisposable
     try
     {
       _listener.Start();
-
-      Debug.WriteLine("HttpListener iniciado.");
     }
     catch (Exception ex)
     {
@@ -37,8 +35,6 @@ public sealed class FaceRecognitionServer : IDisposable
     }
 
     Started?.Invoke();
-
-    Debug.WriteLine("Listener started");
 
     _cts = new CancellationTokenSource();
 
@@ -49,11 +45,9 @@ public sealed class FaceRecognitionServer : IDisposable
 
   private async Task ListenAsync(CancellationToken token)
   {
-    Debug.WriteLine("ListenAsync started");
 
     while (!token.IsCancellationRequested)
     {
-      Debug.WriteLine("Waiting request...");
 
       HttpListenerContext context;
 
@@ -61,10 +55,9 @@ public sealed class FaceRecognitionServer : IDisposable
       {
         context = await _listener.GetContextAsync();
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         Stopped?.Invoke();
-        Debug.WriteLine(ex);
         throw;
       }
 

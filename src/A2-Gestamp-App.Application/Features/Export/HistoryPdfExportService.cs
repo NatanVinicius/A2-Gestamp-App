@@ -89,7 +89,7 @@ public sealed class HistoryPdfExportService : IHistoryExportPdfService
 
             header.Cell().Element(HeaderCell).AlignRight().Text("Reprovadas").Bold();
 
-            header.Cell().Element(HeaderCell).AlignRight().Text("Reject Rate").Bold();
+            header.Cell().Element(HeaderCell).AlignRight().Text("Taxa de Rejeito").Bold();
           });
 
           foreach (var production in productions)
