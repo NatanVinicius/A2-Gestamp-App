@@ -24,7 +24,17 @@ public sealed class FaceRecognitionServer : IDisposable
 
     _listener.Prefixes.Add($"http://+:{port}/");
 
-    _listener.Start();
+    try
+    {
+      _listener.Start();
+
+      Debug.WriteLine("HttpListener iniciado.");
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine(ex.ToString());
+      throw;
+    }
 
     Started?.Invoke();
 

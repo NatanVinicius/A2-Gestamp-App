@@ -1,3 +1,4 @@
+using A2GestampApp.Application.Features.Export;
 using A2GestampApp.Application.Features.Inspection;
 using A2GestampApp.Application.Features.Inspection.Services;
 using A2GestampApp.Application.Features.Ng;
@@ -31,6 +32,8 @@ public static class ApplicationServiceCollectionExtensions
     services.AddScoped<IInspectionReviewService, InspectionReviewService>();
 
     services.AddSingleton<ISystemState, SystemState>();
+
+    services.AddSingleton<IHistoryExportPdfService, HistoryPdfExportService>();
 
     return services;
   }

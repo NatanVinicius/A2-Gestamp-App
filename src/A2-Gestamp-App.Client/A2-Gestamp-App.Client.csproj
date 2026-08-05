@@ -53,6 +53,7 @@
   </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Maui" Version="12.3.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
@@ -81,6 +82,13 @@
       <Folder Include="wwwroot\Assets\Imagens\VS2\" />
       <Folder Include="wwwroot\Assets\Imagens\VS1\" />
     </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\logo_gestamp.png">
+      <Link>assets\logo_gestamp.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
   <Target Name="CheckNode" BeforeTargets="Build">
     <Exec Command="npm --version" />

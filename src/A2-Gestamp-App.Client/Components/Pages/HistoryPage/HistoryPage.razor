@@ -1,4 +1,163 @@
 @page "/history"
+@using Domain.Features.ProductionShift.Enums
 
-<h3>HistoryPage</h3>
+<div class="flex h-full w-full flex-col gap-4 pr-2">
+	<h3 class="text-white/60">
+		> Historico
+	</h3>
 
+	<div class="flex w-full justify-between gap-2">
+
+		<form class="min-w-xs">
+			<label for="countries" class="text-heading mb-2.5 block text-sm font-medium">Tabela</label>
+			<select @bind="SelectedTable" @bind:after="OnFiltersChanged"
+					class="text-heading shadow-xs block w-full rounded-md border border-border bg-border px-3 py-2.5 text-sm placeholder:text-body focus:ring-brand focus:border-brand">
+				<option value="@HistoryTable.Production">Produção</option>
+				<option value="@HistoryTable.Inspection">Inspeção</option>
+			</select>
+		</form>
+
+		<form class="min-w-xs">
+			<label for="history-date" class="text-heading mb-2.5 block text-sm font-medium">
+				Data
+			</label>
+
+			<input id="history-date"
+				   type="date"
+				   class="text-heading shadow-xs block w-full rounded-md border border-border bg-border px-3 py-2.5 text-sm placeholder:text-body focus:ring-brand focus:border-brand"
+				   @bind="SelectedDate" @bind:after="OnFiltersChanged" />
+		</form>
+
+		<form class="min-w-xs">
+			<label for="countries" class="text-heading mb-2.5 block text-sm font-medium">Turno</label>
+			<select @bind="SelectedShift"
+					@bind:after="OnFiltersChanged" class="text-heading shadow-xs block w-full rounded-md border border-border bg-border px-3 py-2.5 text-sm placeholder:text-body focus:ring-brand focus:border-brand">
+				<option value="@ShiftFilter.All">Todos</option>
+				<option value="@ShiftFilter.Morning">Manhã</option>
+				<option value="@ShiftFilter.Afternoon">Tarde</option>
+				<option value="@ShiftFilter.Night">Noite</option>
+			</select>
+		</form>
+
+	</div>
+
+	<div class="shadow-xs relative mt-4 flex-1 overflow-x-auto rounded-md">
+
+		@if (SelectedTable == HistoryTable.Production)
+		{
+			<table class="text-body w-full text-left text-sm rtl:text-right">
+
+				<thead class="text-body sticky top-0 border-b border-white/5 bg-card text-sm">
+					<tr>
+						<th class="px-6 py-3 font-medium">Data</th>
+						<th class="px-6 py-3 font-medium">Turno</th>
+						<th class="px-6 py-3 font-medium">Produzidas</th>
+						<th class="px-6 py-3 font-medium">Aprovadas</th>
+						<th class="px-6 py-3 font-medium">Reprovadas</th>
+						<th class="px-6 py-3 font-medium">Reject Rate</th>
+					</tr>
+				</thead>
+
+				<tbody>
+
+					@foreach (var production in Productions)
+					{
+						<tr class="border-b border-white/5 bg-border">
+
+							<td class="px-6 py-4">
+								@production.StartDate.ToString("dd/MM/yyyy")
+							</td>
+
+							<td class="px-6 py-4">
+								@GetShiftName(production.ShiftNumber)
+							</td>
+
+
+							<td class="px-6 py-4">
+								@production.Produced
+							</td>
+
+							<td class="px-6 py-4 text-green-500">
+								@production.Approved
+							</td>
+
+							<td class="px-6 py-4 text-red-500">
+								@production.Reproved
+							</td>
+
+							<td class="px-6 py-4">
+								@production.RejectionRate.ToString("F2") %
+							</td>
+						</tr>
+					}
+
+				</tbody>
+
+			</table>
+		}
+		else
+		{
+			<table class="text-body w-full text-left text-sm rtl:text-right">
+
+				<thead class="text-body border-b border-white/5 bg-card text-sm">
+					<tr>
+						<th class="px-6 py-3 font-medium">Data/Hora</th>
+						<th class="px-6 py-3 font-medium">Turno</th>
+						<th class="px-6 py-3 font-medium">Original</th>
+						<th class="px-6 py-3 font-medium">Final</th>
+						<th class="px-6 py-3 font-medium">Operador</th>
+						<th class="px-6 py-3 font-medium">Tempo Ciclo</th>
+					</tr>
+				</thead>
+
+				<tbody>
+
+					@foreach (var inspection in Inspections)
+					{
+						<tr class="border-b border-white/5 bg-border">
+
+							<td class="px-6 py-4">
+								@inspection.Date.ToString("dd/MM/yyyy HH:mm:ss")
+							</td>
+
+							<td class="px-6 py-4">
+								@inspection.ProductionShiftId
+							</td>
+
+							<td class="px-6 py-4">
+								@inspection.OriginalJudgement
+							</td>
+
+							<td class="px-6 py-4">
+								@inspection.FinalJudgement
+							</td>
+
+							<td class="px-6 py-4">
+								@inspection.OperatorName
+							</td>
+
+							<td class="px-6 py-4">
+								@($"{inspection.CycleTime.TotalMilliseconds:F0} ms")
+							</td>
+
+						</tr>
+					}
+
+				</tbody>
+
+			</table>
+		}
+
+	</div>
+
+	<div class="flex w-full justify-end">
+		<button @onclick="ExportPdfAsync"
+				class="cursor-pointer rounded-lg bg-red-500 px-8 py-2 font-semibold
+			transition hover:bg-red-500/80
+			disabled:cursor-not-allowed disabled:opacity-20">
+			Exportar PDF
+		</button>
+	</div>
+
+
+</div>
