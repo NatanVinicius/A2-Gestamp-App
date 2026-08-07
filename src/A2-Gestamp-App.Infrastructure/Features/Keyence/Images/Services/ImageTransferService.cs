@@ -22,16 +22,22 @@ public sealed class ImageTransferService : IImageTransferService
   public void Transfer(Inspection inspection)
   {
     string? rejectedFolder = null;
+    string? rejectedFolderName = null;
 
     if (inspection.FinalJudgement == InspectionResult.Reprovada)
     {
+      rejectedFolderName =
+          DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+
       rejectedFolder = Path.Combine(
           AppContext.BaseDirectory,
           "Assets",
           "Rejeitos",
-          DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+          rejectedFolderName);
 
       Directory.CreateDirectory(rejectedFolder);
+
+      inspection.SetRejectFolder(rejectedFolderName);
     }
 
     TransferCamera(inspection.Camera1, rejectedFolder);

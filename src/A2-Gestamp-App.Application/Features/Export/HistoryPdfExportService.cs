@@ -267,7 +267,6 @@ public sealed class HistoryPdfExportService : IHistoryExportPdfService
     {
       ProductionShiftNumber.Morning => "Manhã",
       ProductionShiftNumber.Afternoon => "Tarde",
-      ProductionShiftNumber.Night => "Noite",
       _ => "-"
     };
   }

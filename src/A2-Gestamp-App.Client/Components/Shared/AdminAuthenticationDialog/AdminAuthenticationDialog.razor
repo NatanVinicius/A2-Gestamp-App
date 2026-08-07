@@ -1,0 +1,103 @@
+@if (State.IsOpen)
+{
+	<div class="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+
+		<div class="relative w-[500px] overflow-hidden rounded-xl bg-border shadow-2xl">
+
+			<button @onclick="OnClose"
+					class="absolute top-4 right-4 cursor-pointer text-xl text-white/50 transition hover:text-white">
+				<i class="fa-solid fa-xmark"></i>
+			</button>
+
+			<div class="p-8">
+
+				<div class="flex flex-col items-center text-center">
+
+					<i class="fa-solid fa-user-shield text-8xl text-primary"></i>
+
+					<h3 class="mt-4 text-2xl font-semibold text-white">
+						Autenticação do Administrador
+					</h3>
+
+					<p class="mt-4 max-w-lg leading-7 text-white/70">
+						Autentifique-se para acessar o cadastro de usuários.
+					</p>
+
+					<span class="max-w-lg text-sm leading-7 text-white/30">
+						Clique no botão abaixo e direcione-se ao dispositivo de reconhecimento facial.
+					</span>
+
+					<button @onclick="OnStartRecognition"
+							disabled="@(State.Status == FaceRecognitionStatus.Recognizing)"
+							class="mt-8 cursor-pointer rounded-lg bg-primary px-8 py-3 font-semibold transition hover:bg-primary/80 disabled:cursor-not-allowed disabled:opacity-50">
+
+						<i class="fa-regular fa-id-badge"></i>
+
+						@(State.Status == FaceRecognitionStatus.Recognizing
+							? "Reconhecendo..."
+							: "Habilitar Face ID")
+
+					</button>
+
+					@if (State.Status == FaceRecognitionStatus.Recognizing)
+					{
+						<div class="mt-8">
+
+							<p class="text-sm text-white/60">
+								Tempo restante
+							</p>
+
+							<p class="mt-2 text-4xl font-bold text-primary">
+								@State.RemainingSeconds s
+							</p>
+
+						</div>
+					}
+
+					<div class="mt-8 w-full rounded-lg px-5 py-4
+						@(State.Status switch
+						 {
+							 FaceRecognitionStatus.Waiting => "border border-primary/30 bg-primary/10",
+							 FaceRecognitionStatus.Recognizing => "border border-yellow-500/30 bg-yellow-500/10",
+							 FaceRecognitionStatus.Success => "border border-green-500/30 bg-green-500/10",
+							 FaceRecognitionStatus.Failed => "border border-red-500/30 bg-red-500/10",
+							 _ => "border border-primary/30 bg-primary/10"
+						 })">
+
+						<div class="flex items-center justify-center gap-3">
+
+							<i class="fa-solid fa-circle-info text-white"></i>
+
+							<span class="text-sm text-white/80">
+
+								@(State.Status switch
+								{
+									FaceRecognitionStatus.Waiting =>
+										"Aguardando início da autenticação.",
+
+									FaceRecognitionStatus.Recognizing =>
+										"Reconhecimento facial em andamento...",
+
+									FaceRecognitionStatus.Success =>
+										"Administrador reconhecido. Redirecionando...",
+
+									FaceRecognitionStatus.Failed =>
+										"Você não possui permissão para acessar esta funcionalidade.",
+
+									_ => string.Empty
+								})
+
+							</span>
+
+						</div>
+
+					</div>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+}

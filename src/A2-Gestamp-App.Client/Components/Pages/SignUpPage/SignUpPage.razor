@@ -1,3 +1,111 @@
-@page "/SignUp"
+@page "/signup"
 
-<h3>SignUpPage</h3>
+<div class="flex h-full w-full flex-col gap-4 pr-2">
+	<h3 class="text-white/60">
+		> Cadastro de Usuário
+	</h3>
+
+	<div class="flex flex-1 items-center justify-center">
+		<div class="w-full max-w-4xl rounded-xl bg-border p-10 shadow-2xl">
+
+			<div>
+
+				<p class="mt-2 text-white/60">
+					Preencha as informações abaixo para cadastrar um novo usuário no terminal Hikvision.
+				</p>
+
+			</div>
+
+			<div class="mt-8 rounded-lg border border-primary/30 bg-primary/10 p-5">
+
+				<div class="flex items-start gap-4">
+
+					<i class="fa-solid fa-circle-info mt-1 text-2xl text-primary"></i>
+
+					<div>
+
+						<h2 class="font-semibold text-white">
+							Como funciona?
+						</h2>
+
+						<p class="mt-2 leading-7 text-white/70">
+							Após clicar em <strong>Cadastrar</strong>, será aberta a tela de captura facial.
+							O cadastro somente será concluído após a captura e vinculação da face no terminal Hikvision.
+						</p>
+
+					</div>
+
+				</div>
+
+			</div>
+
+			<div class="mt-10 space-y-8">
+
+				<div>
+
+					<label class="mb-2 block text-sm font-medium text-white/70">
+						Nome
+					</label>
+
+					<input @bind="SignUpState.Name"
+						   class="w-full rounded-lg border border-white/10 bg-background px-4 py-3 text-white transition outline-none focus:border-primary"
+						   placeholder="Digite o nome do usuário" />
+
+				</div>
+
+				<div class="grid grid-cols-2 gap-6">
+
+					<div>
+
+						<label class="mb-2 block text-sm font-medium text-white/70">
+							Employee ID
+						</label>
+
+						<input value="@($"#{SignUpState.EmployeeId}")"
+							   readonly
+							   class="w-full cursor-not-allowed rounded-lg border border-white/10 bg-background px-4 py-3 text-white/60" />
+
+					</div>
+
+					<div>
+
+						<label class="mb-2 block text-sm font-medium text-white/70">
+							Perfil
+						</label>
+
+						<select @bind="SignUpState.Role"
+								class="w-full rounded-lg border border-white/10 bg-background px-4 py-3 text-white transition outline-none focus:border-primary">
+
+							<option value="@UserRole.Normal">
+								Operador
+							</option>
+
+							<option value="@UserRole.AuxiliaryManager">
+								Administrador
+							</option>
+
+						</select>
+
+					</div>
+
+				</div>
+
+			</div>
+
+			<div class="mt-12 flex justify-end">
+
+				<button @onclick="OnRegister"
+						class="rounded-lg bg-primary px-8 py-3 font-semibold text-white transition hover:bg-primary/80">
+
+					<i class="fa-solid fa-user-plus mr-2"></i>
+
+					Cadastrar
+
+				</button>
+
+			</div>
+
+		</div>
+	</div>
+
+</div>

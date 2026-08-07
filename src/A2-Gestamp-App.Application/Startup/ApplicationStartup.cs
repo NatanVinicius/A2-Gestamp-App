@@ -1,3 +1,5 @@
+using A2GestampApp.Application.Features.AdminAuthentication;
+using A2GestampApp.Application.Features.Hikvision;
 using A2GestampApp.Application.Features.Images.Services;
 using A2GestampApp.Application.Features.Inspection;
 using A2GestampApp.Application.Features.Ng;
@@ -23,6 +25,8 @@ internal sealed class ApplicationStartup : IApplicationStartup
   private readonly IFaceRecognitionService _faceRecognitionService;
   private readonly IAuthenticatedUserState _authenticatedUserState;
   private readonly IPlcService _plcService;
+  private readonly IAdminAuthenticationState _adminAuthenticationState;
+  private readonly IFaceImageServer _faceImageServer;
   private readonly ILogger<ApplicationStartup> _logger;
 
   public ApplicationStartup(
@@ -38,6 +42,8 @@ internal sealed class ApplicationStartup : IApplicationStartup
     IImageTransferService imageTransferService,
     IAuthenticatedUserState authenticatedUserState,
     IPlcService plcService,
+    IAdminAuthenticationState adminAuthenticationState,
+    IFaceImageServer faceImageServer,
     ILogger<ApplicationStartup> logger)
   {
     _keyenceService = keyenceService;
@@ -52,6 +58,8 @@ internal sealed class ApplicationStartup : IApplicationStartup
     _faceRecognitionService = faceRecognitionService;
     _authenticatedUserState = authenticatedUserState;
     _plcService = plcService;
+    _adminAuthenticationState = adminAuthenticationState;
+    _faceImageServer = faceImageServer;
     _logger = logger;
 
     _faceRecognitionService.UserRecognized += OnUserRecognized;
@@ -84,6 +92,8 @@ internal sealed class ApplicationStartup : IApplicationStartup
     await _keyenceService.StartAsync();
 
     await _faceRecognitionService.StartAsync();
+
+    await _faceImageServer.StartAsync();
 
     await _faceRecognitionService.DisableAsync();
 
@@ -154,7 +164,17 @@ internal sealed class ApplicationStartup : IApplicationStartup
   {
     _authenticatedUserState.SetUser(e);
 
-    await _ngState.SetSuccessAsync();
+    if (_ngState.IsOpen)
+    {
+      await _ngState.SetSuccessAsync();
+      return;
+    }
+
+    if (_adminAuthenticationState.IsOpen)
+    {
+      await _adminAuthenticationState.AuthenticateAsync(e.Role);
+      return;
+    }
   }
 
   private async Task EnsureCurrentShiftAsync()

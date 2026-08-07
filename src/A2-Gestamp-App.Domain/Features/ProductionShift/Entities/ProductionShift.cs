@@ -47,37 +47,52 @@ public sealed class ProductionShift
 
   public static ProductionShift CreateCurrent()
   {
-    DateTime now = DateTime.Now;
+    var now = DateTime.Now;
 
-    DateTime today = now.Date;
+    var today = now.Date;
 
-    if (now.TimeOfDay < new TimeSpan(6, 0, 0))
+    // Entre 01:09 e 05:59 pertence ao turno da manhã do dia atual.
+    // Antes de 01:09 pertence ao turno da tarde do dia anterior.
+    if (now.TimeOfDay < new TimeSpan(1, 9, 0))
     {
       today = today.AddDays(-1);
     }
 
+    var morningStart = today.AddHours(6);
+
+    var morningEnd = today
+        .AddHours(15)
+        .AddMinutes(48);
+
+    var afternoonStart = morningEnd;
+
+    var afternoonEnd = today
+        .AddDays(1)
+        .AddHours(1)
+        .AddMinutes(9);
+
     if (now.TimeOfDay >= new TimeSpan(6, 0, 0) &&
-        now.TimeOfDay < new TimeSpan(14, 0, 0))
+        now.TimeOfDay < new TimeSpan(15, 48, 0))
     {
       return new ProductionShift(
           ProductionShiftNumber.Morning,
-          today.AddHours(6),
-          today.AddHours(14));
+          morningStart,
+          morningEnd);
     }
 
-    if (now.TimeOfDay >= new TimeSpan(14, 0, 0) &&
-        now.TimeOfDay < new TimeSpan(22, 0, 0))
+    if (now.TimeOfDay >= new TimeSpan(15, 48, 0))
     {
       return new ProductionShift(
           ProductionShiftNumber.Afternoon,
-          today.AddHours(14),
-          today.AddHours(22));
+          afternoonStart,
+          afternoonEnd);
     }
 
+    // 01:09 até 05:59
     return new ProductionShift(
-        ProductionShiftNumber.Night,
-        today.AddHours(22),
-        today.AddDays(1).AddHours(6));
+        ProductionShiftNumber.Morning,
+        morningStart,
+        morningEnd);
   }
 
   public void RegisterInspection(
