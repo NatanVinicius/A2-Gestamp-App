@@ -27,6 +27,8 @@ public sealed class Inspection
 
   public string ThirdImagePath { get; private set; } = string.Empty;
 
+  public string? RejectFolder { get; private set; }
+
   public InspectionResult OriginalJudgement { get; private set; }
 
   public InspectionResult FinalJudgement { get; private set; }
@@ -109,5 +111,10 @@ public sealed class Inspection
     int productionShiftId)
   {
     ProductionShiftId = productionShiftId;
+  }
+
+  public void SetRejectFolder(string folder)
+  {
+    RejectFolder = folder;
   }
 }

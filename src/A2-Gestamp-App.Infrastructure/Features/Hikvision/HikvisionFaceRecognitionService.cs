@@ -51,56 +51,62 @@ public sealed class HikvisionFaceRecognitionService : IFaceRecognitionService
 
   private async Task OnRequestReceived(HttpListenerRequest request)
   {
-    using var reader = new StreamReader(request.InputStream);
-
-    var body = await reader.ReadToEndAsync();
-
-    var json = HikvisionMultipartParser.ExtractEventLog(body);
-
-    if (json is null)
+    try
     {
-      return;
+      using var reader = new StreamReader(request.InputStream);
+
+      var body = await reader.ReadToEndAsync();
+
+      var json = HikvisionMultipartParser.ExtractEventLog(body);
+
+      if (json is null)
+      {
+        return;
+      }
+
+      var hikvisionEvent =
+          JsonSerializer.Deserialize<HikvisionEvent>(json);
+
+      if (hikvisionEvent is null)
+      {
+        return;
+      }
+
+      if (hikvisionEvent.AccessControllerEvent is null)
+      {
+        return;
+      }
+
+      var accessEvent = hikvisionEvent.AccessControllerEvent;
+
+      if (string.IsNullOrWhiteSpace(accessEvent.EmployeeNoString))
+      {
+        return;
+      }
+
+      var user = await _client.SearchUserAsync(
+          DeviceAddress,
+          accessEvent.EmployeeNoString);
+
+      if (user is null)
+      {
+        return;
+      }
+
+      await DisableAsync();
+
+      UserRecognized?.Invoke(new FaceRecognitionEvent
+      {
+        EmployeeNumber = user.EmployeeNumber,
+        Name = user.Name,
+        Role = user.Role
+      });
     }
-
-    var hikvisionEvent =
-        JsonSerializer.Deserialize<HikvisionEvent>(json);
-
-    if (hikvisionEvent is null)
+    catch (Exception)
     {
-      return;
+      System.Diagnostics.Debugger.Break();
+      throw;
     }
-
-    var accessEvent = hikvisionEvent.AccessControllerEvent;
-
-    if (accessEvent.SubEventType != 75)
-    {
-      return;
-    }
-
-    var employeeNumber = accessEvent.EmployeeNoString;
-
-    if (string.IsNullOrWhiteSpace(employeeNumber))
-    {
-      return;
-    }
-
-    var user = await _client.SearchUserAsync(
-        DeviceAddress,
-        employeeNumber);
-
-    if (user is null)
-    {
-      return;
-    }
-
-    await DisableAsync();
-
-    UserRecognized?.Invoke(new FaceRecognitionEvent
-    {
-      EmployeeNumber = user.EmployeeNumber,
-      Name = user.Name,
-      Role = user.Role
-    });
   }
 
   public Task EnableAsync()

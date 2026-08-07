@@ -39,6 +39,9 @@ internal sealed class InspectionConfiguration
     builder.Property(x => x.ThirdImagePath)
         .IsRequired();
 
+    builder.Property(x => x.RejectFolder)
+    .HasMaxLength(100);
+
     builder.Property(x => x.OriginalJudgement)
        .HasConversion<string>();
 

@@ -1,27 +1,32 @@
 @using A2GestampApp.Client.Components.Layout.Header
+@using A2GestampApp.Client.Components.Shared.AdminAuthenticationDialog
 @using A2GestampApp.Client.Components.Shared.ConfirmationDialog
+@using A2GestampApp.Client.Components.Shared.FaceCaptureDialog
 @using A2GestampApp.Client.Components.Shared.NgPopUp
 @inherits LayoutComponentBase
 
-<div class="w-full h-full bg-background text-white flex flex-col overflow-hidden">
+<div class="flex h-full w-full flex-col overflow-hidden bg-background text-white">
 
-    <Header />
+	<Header />
 
-    <div class="flex flex-1 overflow-hidden">
+	<div class="flex flex-1 overflow-hidden">
 
-        <NavMenu />
+		<NavMenu />
 
-        <MainContent>
-            @Body
-        </MainContent>
+		<MainContent>
+			@Body
+		</MainContent>
 
-    </div>
+	</div>
 
-    <Footer />
+	<Footer />
 
-    <NgPopup />
+	<NgPopup />
 
-    
-    <ConfirmationDialog />
+	<ConfirmationDialog />
+
+	<AdminAuthenticationDialog />
+	
+	<FaceCaptureDialog />
 
 </div>

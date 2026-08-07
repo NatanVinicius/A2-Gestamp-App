@@ -35,7 +35,6 @@
 				<option value="@ShiftFilter.All">Todos</option>
 				<option value="@ShiftFilter.Morning">Manhã</option>
 				<option value="@ShiftFilter.Afternoon">Tarde</option>
-				<option value="@ShiftFilter.Night">Noite</option>
 			</select>
 		</form>
 
@@ -107,6 +106,7 @@
 						<th class="px-6 py-3 font-medium">Final</th>
 						<th class="px-6 py-3 font-medium">Operador</th>
 						<th class="px-6 py-3 font-medium">Tempo Ciclo</th>
+						<th class="px-6 py-3 font-medium">Imagens</th>
 					</tr>
 				</thead>
 
@@ -138,6 +138,18 @@
 
 							<td class="px-6 py-4">
 								@($"{inspection.CycleTime.TotalMilliseconds:F0} ms")
+							</td>
+
+							<td class="px-6 py-4">
+
+								@if (!string.IsNullOrWhiteSpace(inspection.RejectFolder))
+								{
+
+									<button @onclick="() => OpenRejectFolder(inspection)" class="cursor-pointer">
+										<i class="fa-regular fa-image text-center text-xl text-white"></i>
+									</button>
+								}
+
 							</td>
 
 						</tr>

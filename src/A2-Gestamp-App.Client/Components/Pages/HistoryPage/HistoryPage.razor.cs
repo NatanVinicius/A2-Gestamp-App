@@ -1,5 +1,7 @@
 namespace A2GestampApp.Client.Components.Pages.HistoryPage;
 
+using System.Diagnostics;
+
 using A2GestampApp.Application.Features.Export;
 using A2GestampApp.Domain.Features.ProductionShift.Entities;
 using A2GestampApp.Domain.Features.ProductionShift.Enums;
@@ -72,8 +74,7 @@ public partial class HistoryPage : ComponentBase
   {
     All,
     Morning,
-    Afternoon,
-    Night
+    Afternoon
   }
 
   protected List<ProductionShift> Productions { get; private set; } = [];
@@ -124,7 +125,6 @@ public partial class HistoryPage : ComponentBase
       ShiftFilter.All => null,
       ShiftFilter.Morning => ProductionShiftNumber.Morning,
       ShiftFilter.Afternoon => ProductionShiftNumber.Afternoon,
-      ShiftFilter.Night => ProductionShiftNumber.Night,
       _ => null
     };
   }
@@ -134,7 +134,6 @@ public partial class HistoryPage : ComponentBase
     {
       ProductionShiftNumber.Morning => "Manhã",
       ProductionShiftNumber.Afternoon => "Tarde",
-      ProductionShiftNumber.Night => "Noite",
       _ => "-"
     };
 
@@ -150,7 +149,6 @@ public partial class HistoryPage : ComponentBase
       ShiftFilter.All => "Todos",
       ShiftFilter.Morning => "Manhã",
       ShiftFilter.Afternoon => "Tarde",
-      ShiftFilter.Night => "Noite",
       _ => "Todos"
     };
 
@@ -187,6 +185,31 @@ public partial class HistoryPage : ComponentBase
         fileName,
         stream,
         CancellationToken.None);
+  }
+
+  private void OpenRejectFolder(DomainInspection inspection)
+  {
+    if (string.IsNullOrWhiteSpace(inspection.RejectFolder))
+    {
+      return;
+    }
+
+    var folder = Path.Combine(
+        AppContext.BaseDirectory,
+        "Assets",
+        "Rejeitos",
+        inspection.RejectFolder);
+
+    if (!Directory.Exists(folder))
+    {
+      return;
+    }
+
+    Process.Start(new ProcessStartInfo
+    {
+      FileName = folder,
+      UseShellExecute = true
+    });
   }
 
 }

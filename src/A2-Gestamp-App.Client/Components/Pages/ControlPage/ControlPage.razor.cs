@@ -1,6 +1,7 @@
 using A2_Gestamp_App.Domain.Features.Inspection.Entities;
 
 using A2GestampApp.Application.Features.Inspection;
+using A2GestampApp.Application.Features.Ng;
 using A2GestampApp.Domain.Features.Inspection.Entities;
 
 using Microsoft.AspNetCore.Components;
@@ -14,6 +15,9 @@ public partial class ControlPage : IDisposable
 
   [Inject]
   private IInspectionState InspectionState { get; set; } = default!;
+
+  [Inject]
+  private INgState NgState { get; set; } = default!;
 
   [Inject]
   private IInspectionReviewService InspectionReviewService { get; set; } = default!;
@@ -68,6 +72,11 @@ public partial class ControlPage : IDisposable
     UserState.Clear();
 
     Navigation.NavigateTo("/");
+  }
+
+  private void ChangeUserLogged()
+  {
+    NgState.Open();
   }
 
   private async Task SaveAsync()

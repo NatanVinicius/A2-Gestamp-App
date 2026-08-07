@@ -1,3 +1,5 @@
+using A2GestampApp.Application.Features.FaceCapture;
+using A2GestampApp.Application.Features.Hikvision;
 using A2GestampApp.Infrastructure.Features.Database;
 using A2GestampApp.Infrastructure.Features.Images;
 using A2GestampApp.Infrastructure.Features.Plc;
@@ -27,6 +29,15 @@ public static class InfrastructureServiceCollectionExtensions
     services.AddDatabase();
 
     services.AddSingleton<IPlcService, PlcService>();
+
+    services.AddSingleton<IHikvisionUserService, HikvisionUserService>();
+
+    services.AddSingleton<FaceImageServer>();
+
+    services.AddSingleton<IFaceImageServer>(provider =>
+        provider.GetRequiredService<FaceImageServer>());
+
+    services.AddSingleton<IFaceCaptureState, FaceCaptureState>();
 
     return services;
   }

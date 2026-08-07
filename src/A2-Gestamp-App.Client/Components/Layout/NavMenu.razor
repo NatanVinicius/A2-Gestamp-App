@@ -1,18 +1,23 @@
-<aside class="w-20 flex flex-col items-center justify-center gap-6 py-2 bg-background text-white/80">
+<aside class="flex w-20 flex-col items-center justify-center gap-6 bg-background py-2 text-white/80">
 
-    <NavLink class="nav-item" href="/" Match="NavLinkMatch.All">
-    <i class="fa-solid fa-magnifying-glass text-2xl"></i>
-    </NavLink>
+	<NavLink class="nav-item" href="/" Match="NavLinkMatch.All
+		">
+		<i class="fa-solid fa-magnifying-glass text-2xl"></i>
+	</NavLink>
 
-    <NavLink class="nav-item" href="/control">
-        <i class="fa-solid fa-user-gear text-2xl"></i>
-    </NavLink>
+	<NavLink class="nav-item" href="/control">
+		<i class="fa-solid fa-user-gear text-2xl"></i>
+	</NavLink>
 
-    <NavLink class="nav-item" href="/signup">
-        <i class="fa-solid fa-user-plus text-2xl"></i>
-    </NavLink>
+	<NavLink class="nav-item"
+			 href="/signup"
+			 @onclick="AuthenticateAdminAsync">
+		<i class="fa-solid fa-user-plus text-2xl"></i>
 
-    <NavLink class="nav-item" href="/history">
-        <i class="fa-solid fa-chart-bar text-2xl"></i>
-    </NavLink>
+	</NavLink>
+
+	<NavLink class="nav-item" href="/history">
+		<i class="fa-solid fa-chart-bar text-2xl"></i>
+	</NavLink>
+
 </aside>

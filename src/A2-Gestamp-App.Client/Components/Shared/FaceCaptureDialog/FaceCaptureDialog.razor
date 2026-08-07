@@ -1,0 +1,122 @@
+
+
+@if (FaceCaptureState.IsOpen)
+{
+	<div class="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+
+		<div class="w-[500px] overflow-hidden rounded-xl bg-border shadow-2xl">
+
+			<div class="relative p-8">
+
+				<button class="absolute top-5 right-5 text-white/50 transition hover:text-white"
+						@onclick="Close">
+
+					<i class="fa-solid fa-xmark text-xl"></i>
+
+				</button>
+
+				<div class="flex flex-col items-center text-center">
+
+					<i class="fa-solid fa-camera text-8xl text-primary"></i>
+
+					<h3 class="mt-4 text-2xl font-semibold text-white">
+						Captura Facial
+					</h3>
+
+					<p class="mt-4 max-w-lg leading-7 text-white/70">
+						Cadastre um novo usuário utilizando o reconhecimento facial.
+					</p>
+
+					<span class="max-w-lg text-sm leading-7 text-white/30">
+						Clique no botão abaixo e direcione-se ao terminal Hikvision.
+					</span>
+
+					<button @onclick="OnStartCapture"
+							disabled="@(FaceCaptureState.Status == FaceCaptureStatus.Capturing)"
+							class="mt-8 cursor-pointer rounded-lg bg-primary px-8 py-3 font-semibold transition hover:bg-primary/80 disabled:cursor-not-allowed disabled:opacity-50">
+
+						<i class="fa-solid fa-camera"></i>
+
+						@(FaceCaptureState.Status == FaceCaptureStatus.Capturing
+							? "Capturando..."
+							: "Iniciar Captura")
+
+					</button>
+
+					@if (FaceCaptureState.Status == FaceCaptureStatus.Capturing)
+					{
+						<div class="mt-8">
+
+							<p class="text-sm text-white/60">
+								Tempo restante
+							</p>
+
+							<p class="mt-2 text-4xl font-bold text-primary">
+								@FaceCaptureState.RemainingSeconds s
+							</p>
+
+						</div>
+					}
+
+					<div class="mt-8 w-full rounded-lg px-5 py-4
+						@(FaceCaptureState.Status switch
+						 {
+							 FaceCaptureStatus.Waiting => "bg-primary/10 border border-primary/30",
+
+							 FaceCaptureStatus.Capturing => "bg-yellow-500/10 border border-yellow-500/30",
+
+							 FaceCaptureStatus.CreatingUser => "bg-yellow-500/10 border border-yellow-500/30",
+
+							 FaceCaptureStatus.CreatingFace => "bg-yellow-500/10 border border-yellow-500/30",
+
+							 FaceCaptureStatus.Success => "bg-green-500/10 border border-green-500/30",
+
+							 FaceCaptureStatus.Failed => "bg-red-500/10 border border-red-500/30",
+
+							 _ => "bg-primary/10 border border-primary/30"
+						 })">
+
+						<div class="flex items-center justify-center gap-3">
+
+							<i class="fa-solid fa-circle-info text-white"></i>
+
+							<span class="text-sm text-white/80">
+
+								@(FaceCaptureState.Status switch
+								{
+									FaceCaptureStatus.Waiting =>
+										"Aguardando início da captura.",
+
+									FaceCaptureStatus.Capturing =>
+										"Capturando imagem...",
+
+									FaceCaptureStatus.CreatingUser =>
+										"Criando usuário...",
+
+									FaceCaptureStatus.CreatingFace =>
+										"Vinculando Face ID...",
+
+									FaceCaptureStatus.Success =>
+										"Cadastro realizado com sucesso.",
+
+									FaceCaptureStatus.Failed =>
+										"Falha ao realizar o cadastro.",
+
+									_ =>
+										string.Empty
+								})
+
+							</span>
+
+						</div>
+
+					</div>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+}

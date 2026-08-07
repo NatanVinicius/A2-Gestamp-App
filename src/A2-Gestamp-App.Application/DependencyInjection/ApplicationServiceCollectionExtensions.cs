@@ -1,3 +1,4 @@
+using A2GestampApp.Application.Features.AdminAuthentication;
 using A2GestampApp.Application.Features.Export;
 using A2GestampApp.Application.Features.Inspection;
 using A2GestampApp.Application.Features.Inspection.Services;
@@ -34,6 +35,10 @@ public static class ApplicationServiceCollectionExtensions
     services.AddSingleton<ISystemState, SystemState>();
 
     services.AddSingleton<IHistoryExportPdfService, HistoryPdfExportService>();
+
+    services.AddSingleton<IAdminAuthenticationState, AdminAuthenticationState>();
+
+    services.AddSingleton<ISignUpState, SignUpState>();
 
     return services;
   }
