@@ -29,8 +29,8 @@ public sealed class PlcService : IPlcService, IDisposable
   private Task? _heartbeatTask;
 
   public PlcService(
-      ISystemState systemState,
-      ILogger<PlcService> logger)
+    ISystemState systemState,
+    ILogger<PlcService> logger)
   {
     _systemState = systemState;
     _logger = logger;
@@ -38,11 +38,20 @@ public sealed class PlcService : IPlcService, IDisposable
 
   public async Task ConnectAsync()
   {
-
     if (_tcpClient.Connected)
     {
+      _logger.LogInformation(
+          "[PLC] Already connected to PLC ({IpAddress}:{Port}).",
+          IpAddress,
+          Port);
+
       return;
     }
+
+    _logger.LogInformation(
+        "[PLC] Connecting to PLC ({IpAddress}:{Port}).",
+        IpAddress,
+        Port);
 
     _tcpClient.Dispose();
     _tcpClient = new TcpClient();
@@ -57,6 +66,11 @@ public sealed class PlcService : IPlcService, IDisposable
           Port,
           cancellationTokenSource.Token);
 
+      _logger.LogInformation(
+          "[PLC] TCP connection established with PLC ({IpAddress}:{Port}).",
+          IpAddress,
+          Port);
+
       _master = new ModbusFactory()
           .CreateMaster(_tcpClient);
 
@@ -64,7 +78,7 @@ public sealed class PlcService : IPlcService, IDisposable
           CommunicationStatus.Connected);
 
       _logger.LogInformation(
-          "Connected to PLC ({IpAddress}:{Port}).",
+          "[PLC] Connected to PLC ({IpAddress}:{Port}).",
           IpAddress,
           Port);
 
@@ -78,6 +92,9 @@ public sealed class PlcService : IPlcService, IDisposable
 
         _heartbeatTask = HeartbeatAsync(
             _heartbeatCancellationTokenSource.Token);
+
+        _logger.LogInformation(
+            "[PLC] Heartbeat started.");
       }
     }
     catch (OperationCanceledException)
@@ -86,7 +103,7 @@ public sealed class PlcService : IPlcService, IDisposable
           CommunicationStatus.Disconnected);
 
       _logger.LogWarning(
-          "Timeout connecting to PLC ({IpAddress}:{Port}).",
+          "[PLC] Timeout connecting to PLC ({IpAddress}:{Port}).",
           IpAddress,
           Port);
     }
@@ -97,7 +114,7 @@ public sealed class PlcService : IPlcService, IDisposable
 
       _logger.LogError(
           ex,
-          "Error connecting to PLC ({IpAddress}:{Port}).",
+          "[PLC] Error connecting to PLC ({IpAddress}:{Port}).",
           IpAddress,
           Port);
     }
@@ -105,10 +122,16 @@ public sealed class PlcService : IPlcService, IDisposable
 
   public async Task DisconnectAsync()
   {
+    _logger.LogInformation(
+        "[PLC] Disconnecting from PLC.");
+
     try
     {
       if (_master is not null)
       {
+        _logger.LogInformation(
+            "[PLC] Writing SoftwareAlive = 0 before disconnect.");
+
         await WriteAsync(
             PlcRegisters.SoftwareAlive,
             0);
@@ -126,21 +149,19 @@ public sealed class PlcService : IPlcService, IDisposable
           }
         }
       }
-
-
     }
     catch (Exception ex)
     {
       _logger.LogError(
           ex,
-          "Error disconnecting PLC.");
+          "[PLC] Error disconnecting PLC.");
     }
 
     _systemState.SetPlcStatus(
         CommunicationStatus.Disconnected);
 
     _logger.LogInformation(
-        "PLC disconnected.");
+        "[PLC] PLC disconnected.");
 
     _tcpClient.Close();
   }
@@ -151,12 +172,29 @@ public sealed class PlcService : IPlcService, IDisposable
   {
     if (_master is null)
     {
+      _logger.LogWarning(
+          "[PLC] Write ignored because PLC master is not initialized. Register: {Register}, Value: {Value}",
+          register,
+          value);
+
       return;
     }
+
+    _logger.LogInformation(
+        "[PLC] Writing register. SlaveId: {SlaveId}, Register: {Register}, Value: {Value}",
+        SlaveId,
+        register,
+        value);
 
     try
     {
       await _master.WriteSingleRegisterAsync(
+          SlaveId,
+          register,
+          value);
+
+      _logger.LogInformation(
+          "[PLC] Register written successfully. SlaveId: {SlaveId}, Register: {Register}, Value: {Value}",
           SlaveId,
           register,
           value);
@@ -168,18 +206,23 @@ public sealed class PlcService : IPlcService, IDisposable
 
       _logger.LogError(
           ex,
-          "Error writing PLC register {Register}.",
-          register);
+          "[PLC] Error writing register. SlaveId: {SlaveId}, Register: {Register}, Value: {Value}",
+          SlaveId,
+          register,
+          value);
 
       throw;
     }
   }
 
   private async Task HeartbeatAsync(
-    CancellationToken cancellationToken)
+      CancellationToken cancellationToken)
   {
     using PeriodicTimer timer =
         new(TimeSpan.FromSeconds(2));
+
+    _logger.LogInformation(
+        "[PLC] Heartbeat loop running.");
 
     try
     {
@@ -189,9 +232,16 @@ public sealed class PlcService : IPlcService, IDisposable
         {
           if (_master is null || !_tcpClient.Connected)
           {
+            _logger.LogWarning(
+                "[PLC] Heartbeat detected disconnected PLC. Reconnecting...");
+
             await ConnectAsync();
+
             continue;
           }
+
+          _logger.LogInformation(
+              "[PLC] Heartbeat sending SoftwareAlive = 1.");
 
           await _master.WriteSingleRegisterAsync(
               SlaveId,
@@ -200,12 +250,15 @@ public sealed class PlcService : IPlcService, IDisposable
 
           _systemState.SetPlcStatus(
               CommunicationStatus.Connected);
+
+          _logger.LogInformation(
+              "[PLC] Heartbeat successful.");
         }
         catch (Exception ex)
         {
           _logger.LogWarning(
               ex,
-              "PLC heartbeat failed. Reconnecting...");
+              "[PLC] Heartbeat failed. Reconnecting...");
 
           _systemState.SetPlcStatus(
               CommunicationStatus.Disconnected);
@@ -224,7 +277,13 @@ public sealed class PlcService : IPlcService, IDisposable
 
           try
           {
+            _logger.LogInformation(
+                "[PLC] Attempting PLC reconnection after heartbeat failure.");
+
             await ConnectAsync();
+
+            _logger.LogInformation(
+                "[PLC] PLC reconnection attempt completed.");
           }
           catch
           {
@@ -235,13 +294,22 @@ public sealed class PlcService : IPlcService, IDisposable
     }
     catch (OperationCanceledException)
     {
+      _logger.LogInformation(
+          "[PLC] Heartbeat cancelled.");
     }
   }
 
   public void Dispose()
   {
+    _logger.LogInformation(
+        "[PLC] Disposing PLC service.");
+
     _systemState.SetPlcStatus(
-          CommunicationStatus.Disconnected);
+        CommunicationStatus.Disconnected);
+
     _tcpClient.Dispose();
+
+    _logger.LogInformation(
+        "[PLC] PLC service disposed.");
   }
 }

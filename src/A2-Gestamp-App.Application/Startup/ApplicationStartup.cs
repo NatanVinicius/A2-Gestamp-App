@@ -67,17 +67,35 @@ internal sealed class ApplicationStartup : IApplicationStartup
 
   public async Task StartAsync()
   {
-    ProductionShift? shift =
-    await _productionShiftRepository.GetCurrentAsync();
+    _logger.LogInformation(
+        "[Application] Starting application.");
 
+    ProductionShift? shift =
+        await _productionShiftRepository.GetCurrentAsync();
 
     if (shift is null)
     {
+      _logger.LogInformation(
+          "[Application] No current production shift found. Creating new shift.");
 
       shift = ProductionShift.CreateCurrent();
 
       await _productionShiftRepository.AddAsync(shift);
 
+      _logger.LogInformation(
+          "[Application] Production shift created. Start: {Start}, End: {End}, Shift: {Shift}",
+          shift.StartDate,
+          shift.EndDate,
+          shift.ShiftNumber);
+    }
+    else
+    {
+      _logger.LogInformation(
+          "[Application] Current production shift loaded. Id: {Id}, Shift: {Shift}, Start: {Start}, End: {End}",
+          shift.Id,
+          shift.ShiftNumber,
+          shift.StartDate,
+          shift.EndDate);
     }
 
     _productionShiftState.SetCurrentShift(shift);
@@ -87,15 +105,33 @@ internal sealed class ApplicationStartup : IApplicationStartup
 
     _inspectionCoordinator.InspectionCompleted += OnInspectionCompleted;
 
+    _logger.LogInformation(
+        "[Application] Inspection event handlers registered.");
+
     _imageWatcher.Start();
+
+    _logger.LogInformation(
+        "[Application] Image watcher started.");
 
     await _keyenceService.StartAsync();
 
+    _logger.LogInformation(
+        "[Application] Keyence service started.");
+
     await _faceRecognitionService.StartAsync();
+
+    _logger.LogInformation(
+        "[Application] Face recognition service started.");
 
     await _faceImageServer.StartAsync();
 
+    _logger.LogInformation(
+        "[Application] Face image server started.");
+
     await _faceRecognitionService.DisableAsync();
+
+    _logger.LogInformation(
+        "[Application] Face recognition disabled after startup.");
 
     try
     {
@@ -105,16 +141,23 @@ internal sealed class ApplicationStartup : IApplicationStartup
     {
       _logger.LogError(
           ex,
-          "Unable to connect to PLC.");
+          "[Application] Unable to connect to PLC.");
     }
 
-    _logger.LogInformation("Application started.");
+    _logger.LogInformation(
+        "[Application] Application started.");
   }
 
-  private async void OnInspectionCompleted(Inspection inspection)
+  private async void OnInspectionCompleted(
+      Inspection inspection)
   {
     try
     {
+      _logger.LogInformation(
+          "[Application] Inspection completed. Result: {Result}, CycleTime: {CycleTime}",
+          inspection.FinalJudgement,
+          inspection.CycleTime);
+
       _imageTransferService.Transfer(inspection);
 
       await EnsureCurrentShiftAsync();
@@ -123,6 +166,11 @@ internal sealed class ApplicationStartup : IApplicationStartup
           _productionShiftState.CurrentShift.Id);
 
       await _inspectionRepository.AddAsync(inspection);
+
+      _logger.LogInformation(
+          "[Application] Inspection persisted. InspectionId: {InspectionId}, ShiftId: {ShiftId}",
+          inspection.Id,
+          _productionShiftState.CurrentShift.Id);
 
       _productionShiftState.CurrentShift.RegisterInspection(
           inspection.FinalJudgement,
@@ -135,12 +183,18 @@ internal sealed class ApplicationStartup : IApplicationStartup
 
       if (inspection.FinalJudgement == InspectionResult.Aprovada)
       {
+        _logger.LogInformation(
+            "[Application] Inspection approved. Sending PLC Approved signal.");
+
         await _plcService.WriteAsync(
             PlcRegisters.Approved,
             1);
       }
       else
       {
+        _logger.LogInformation(
+            "[Application] Inspection rejected. Sending PLC Rejected signal.");
+
         await _plcService.WriteAsync(
             PlcRegisters.Rejected,
             1);
@@ -150,68 +204,101 @@ internal sealed class ApplicationStartup : IApplicationStartup
 
       if (inspection.FinalJudgement == InspectionResult.Reprovada)
       {
+        _logger.LogInformation(
+            "[Application] NG inspection detected. Opening NG state.");
+
         _ngState.Open();
       }
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Erro ao persistir inspeção.");
+      _logger.LogError(
+          ex,
+          "[Application] Error processing completed inspection.");
+
       throw;
     }
   }
 
-  private async void OnUserRecognized(FaceRecognitionEvent e)
+  private async void OnUserRecognized(
+      FaceRecognitionEvent e)
   {
+    _logger.LogInformation(
+        "[Application] User recognized. EmployeeNumber: {EmployeeNumber}, Name: {Name}, Role: {Role}",
+        e.EmployeeNumber,
+        e.Name,
+        e.Role);
+
     _authenticatedUserState.SetUser(e);
 
     if (_ngState.IsOpen)
     {
+      _logger.LogInformation(
+          "[Application] NG state is open. Authenticating user for NG release.");
+
       await _ngState.SetSuccessAsync();
+
       return;
     }
 
     if (_adminAuthenticationState.IsOpen)
     {
+      _logger.LogInformation(
+          "[Application] Admin authentication is open. Authenticating recognized user.");
+
       await _adminAuthenticationState.AuthenticateAsync(e.Role);
+
       return;
     }
   }
 
   private async Task EnsureCurrentShiftAsync()
   {
-
     ProductionShift currentShift =
         _productionShiftState.CurrentShift;
 
     _logger.LogInformation(
-    "Agora: {Now} | Início: {Start} | Fim: {End} | Expirado: {Expired}",
-    DateTime.Now,
-    currentShift.StartDate,
-    currentShift.EndDate,
-    currentShift.IsExpired);
+        "[Application] Checking current shift. Now: {Now}, Start: {Start}, End: {End}, Expired: {Expired}",
+        DateTime.Now,
+        currentShift.StartDate,
+        currentShift.EndDate,
+        currentShift.IsExpired);
 
     if (!currentShift.IsExpired)
     {
-      _logger.LogInformation("Turno ainda válido.");
       return;
     }
 
-    _logger.LogInformation("Turno expirado. Criando novo turno.");
+    _logger.LogInformation(
+        "[Application] Current shift expired. Closing and creating new shift.");
 
     currentShift.Close();
 
-    await _productionShiftRepository.UpdateAsync(currentShift);
+    await _productionShiftRepository.UpdateAsync(
+        currentShift);
 
     ProductionShift newShift =
         ProductionShift.CreateCurrent();
 
-    await _productionShiftRepository.AddAsync(newShift);
+    await _productionShiftRepository.AddAsync(
+        newShift);
 
-    _productionShiftState.SetCurrentShift(newShift);
+    _productionShiftState.SetCurrentShift(
+        newShift);
+
+    _logger.LogInformation(
+        "[Application] New production shift created. Id: {Id}, Shift: {Shift}, Start: {Start}, End: {End}",
+        newShift.Id,
+        newShift.ShiftNumber,
+        newShift.StartDate,
+        newShift.EndDate);
   }
 
   public async Task StopAsync()
   {
+    _logger.LogInformation(
+        "[Application] Stopping application.");
+
     try
     {
       await _plcService.DisconnectAsync();
@@ -220,7 +307,10 @@ internal sealed class ApplicationStartup : IApplicationStartup
     {
       _logger.LogError(
           ex,
-          "Error disconnecting PLC.");
+          "[Application] Error disconnecting PLC.");
     }
+
+    _logger.LogInformation(
+        "[Application] Application stopped.");
   }
 }
