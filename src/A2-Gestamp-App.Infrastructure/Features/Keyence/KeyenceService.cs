@@ -34,15 +34,23 @@ public sealed class KeyenceService : IKeyenceService
     _connectionLogger = connectionLogger;
     _systemState = systemState;
     _parser = parser;
-
-
   }
 
   public async Task StartAsync(
     CancellationToken cancellationToken = default)
   {
+    _logger.LogInformation(
+        "[Keyence] Starting Keyence service. Cameras configured: {CameraCount}",
+        _options.Cameras.Count);
+
     foreach (var camera in _options.Cameras)
     {
+      _logger.LogInformation(
+          "[Keyence] Creating connection for camera {Camera}. Host: {Host}, Port: {Port}",
+          camera.Name,
+          camera.Host,
+          camera.Port);
+
       var connection = new KeyenceTcpConnection(
           camera,
           _connectionLogger);
@@ -57,13 +65,21 @@ public sealed class KeyenceService : IKeyenceService
     }
 
     _logger.LogInformation(
-        "Keyence service started.");
+        "[Keyence] Keyence service started.");
   }
 
   public async Task StopAsync()
   {
+    _logger.LogInformation(
+        "[Keyence] Stopping Keyence service. Connections: {ConnectionCount}",
+        _connections.Count);
+
     foreach (var connection in _connections)
     {
+      _logger.LogInformation(
+          "[Keyence] Stopping connection for camera {Camera}.",
+          connection.Camera.Name);
+
       connection.MessageReceived -= OnMessageReceived;
       connection.Connected -= OnConnected;
       connection.Disconnected -= OnDisconnected;
@@ -76,30 +92,68 @@ public sealed class KeyenceService : IKeyenceService
     _connections.Clear();
 
     _logger.LogInformation(
-        "Keyence service stopped.");
+        "[Keyence] Keyence service stopped.");
   }
 
   private void OnMessageReceived(CameraMessage message)
   {
-    var inspection = _parser.Parse(message.RawMessage);
+    _logger.LogInformation(
+        "[Keyence] Message received from camera {Camera}. Raw message: {RawMessage}",
+        message.CameraName,
+        message.RawMessage);
 
-    InspectionReceived?.Invoke(inspection);
+    try
+    {
+      var inspection = _parser.Parse(message.RawMessage);
+
+      _logger.LogInformation(
+          "[Keyence] Message parsed successfully from camera {Camera}.",
+          message.CameraName);
+
+      _logger.LogInformation(
+          "[Keyence] Inspection result received from camera {Camera}: {Result}",
+          message.CameraName,
+          inspection);
+
+      InspectionReceived?.Invoke(inspection);
+
+      _logger.LogInformation(
+          "[Keyence] InspectionReceived event dispatched for camera {Camera}.",
+          message.CameraName);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(
+          ex,
+          "[Keyence] Failed to parse message received from camera {Camera}. Raw message: {RawMessage}",
+          message.CameraName,
+          message.RawMessage);
+
+      throw;
+    }
   }
 
   private void OnConnected(KeyenceTcpConnection connection)
   {
+    _logger.LogInformation(
+        "[Keyence] Camera {Camera} connected.",
+        connection.Camera.Name);
+
     switch (connection.Camera.Name)
     {
       case "VS1":
-        _systemState.SetCamera1Status(CommunicationStatus.Connected);
+        _systemState.SetCamera1Status(
+            CommunicationStatus.Connected);
         break;
 
       case "VS2":
-        _systemState.SetCamera2Status(CommunicationStatus.Connected);
+        _systemState.SetCamera2Status(
+            CommunicationStatus.Connected);
         break;
 
       case "VS3":
-        _systemState.SetCamera3Status(CommunicationStatus.Connected);
+        _systemState.SetCamera3Status(
+            CommunicationStatus.Connected);
         break;
     }
   }
@@ -113,15 +167,18 @@ public sealed class KeyenceService : IKeyenceService
     switch (connection.Camera.Name)
     {
       case "VS1":
-        _systemState.SetCamera1Status(CommunicationStatus.Disconnected);
+        _systemState.SetCamera1Status(
+            CommunicationStatus.Disconnected);
         break;
 
       case "VS2":
-        _systemState.SetCamera2Status(CommunicationStatus.Disconnected);
+        _systemState.SetCamera2Status(
+            CommunicationStatus.Disconnected);
         break;
 
       case "VS3":
-        _systemState.SetCamera3Status(CommunicationStatus.Disconnected);
+        _systemState.SetCamera3Status(
+            CommunicationStatus.Disconnected);
         break;
     }
   }

@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 using A2GestampApp.Infrastructure.Hikvision.Models.Requests;
 
 using Microsoft.Extensions.Logging;
@@ -9,8 +7,7 @@ namespace A2GestampApp.Infrastructure.Hikvision;
 public sealed class HikvisionUserService
     : IHikvisionUserService
 {
-
-  private readonly ILogger<FaceImageServer> _logger;
+  private readonly ILogger<HikvisionUserService> _logger;
 
   private readonly HikvisionClient _client;
 
@@ -21,16 +18,18 @@ public sealed class HikvisionUserService
   public HikvisionUserService(
       HikvisionClient client,
       FaceImageServer faceImageServer,
-      ILogger<FaceImageServer> logger)
+      ILogger<HikvisionUserService> logger)
   {
     _client = client;
     _faceImageServer = faceImageServer;
     _logger = logger;
   }
 
-
   public async Task<string> GenerateEmployeeIdAsync()
   {
+    _logger.LogInformation(
+        "[HikvisionUserService] Generating employee ID.");
+
     while (true)
     {
       var employeeId =
@@ -39,20 +38,62 @@ public sealed class HikvisionUserService
 
       if (!await _client.UserExistsAsync(employeeId))
       {
+        _logger.LogInformation(
+            "[HikvisionUserService] Employee ID generated: {EmployeeId}",
+            employeeId);
+
         return employeeId;
       }
+
+      _logger.LogInformation(
+          "[HikvisionUserService] Generated employee ID already exists: {EmployeeId}",
+          employeeId);
     }
   }
-  public Task<byte[]> CaptureFaceAsync()
+
+  public async Task<byte[]> CaptureFaceAsync()
   {
-    return _client.CaptureFaceAsync();
+    _logger.LogInformation(
+        "[HikvisionUserService] Starting face capture.");
+
+    try
+    {
+      var image =
+          await _client.CaptureFaceAsync();
+
+      _logger.LogInformation(
+          "[HikvisionUserService] Face captured successfully. Size: {ImageSize} bytes.",
+          image.Length);
+
+      return image;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(
+          ex,
+          "[HikvisionUserService] Failed to capture face.");
+
+      throw;
+    }
   }
 
   public async Task CreateUserAsync(
-    string employeeId,
-    string name,
-    UserRole role)
+      string employeeId,
+      string name,
+      UserRole role)
   {
+    var userType =
+        role == UserRole.AuxiliaryManager
+            ? "auxiliaryManager"
+            : "normal";
+
+    _logger.LogInformation(
+        "[HikvisionUserService] Creating user. EmployeeId: {EmployeeId}, Name: {Name}, Role: {Role}, HikvisionUserType: {UserType}",
+        employeeId,
+        name,
+        role,
+        userType);
+
     var request =
         new CreateUserRequest
         {
@@ -60,19 +101,33 @@ public sealed class HikvisionUserService
           {
             EmployeeNo = employeeId,
             Name = name,
-            UserType =
-                    role == UserRole.AuxiliaryManager
-                        ? "auxiliaryManager"
-                        : "normal"
+            UserType = userType
           }
         };
 
-    await _client.CreateUserAsync(request);
+    try
+    {
+      await _client.CreateUserAsync(request);
+
+      _logger.LogInformation(
+          "[HikvisionUserService] User created successfully. EmployeeId: {EmployeeId}",
+          employeeId);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(
+          ex,
+          "[HikvisionUserService] Failed to create user. EmployeeId: {EmployeeId}, Name: {Name}",
+          employeeId,
+          name);
+
+      throw;
+    }
   }
 
   public async Task CreateFaceRecordAsync(
-    string employeeId,
-    string name)
+      string employeeId,
+      string name)
   {
     var request =
         new CreateFaceRecordRequest
@@ -83,23 +138,50 @@ public sealed class HikvisionUserService
         };
 
     _logger.LogInformation(
-    "FaceURL: {FaceUrl}",
-    request.FaceUrl);
+        "[HikvisionUserService] Creating face record. EmployeeId: {EmployeeId}, Name: {Name}, FaceURL: {FaceUrl}",
+        employeeId,
+        name,
+        request.FaceUrl);
 
-    await _client.CreateFaceRecordAsync(request);
+    try
+    {
+      await _client.CreateFaceRecordAsync(request);
+
+      _logger.LogInformation(
+          "[HikvisionUserService] Face record created successfully. EmployeeId: {EmployeeId}",
+          employeeId);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(
+          ex,
+          "[HikvisionUserService] Failed to create face record. EmployeeId: {EmployeeId}, Name: {Name}",
+          employeeId,
+          name);
+
+      throw;
+    }
   }
 
   public async Task RegisterAsync(
-     string employeeId,
-     string name,
-     UserRole role)
+      string employeeId,
+      string name,
+      UserRole role)
   {
+    _logger.LogInformation(
+        "[HikvisionUserService] Starting user registration. EmployeeId: {EmployeeId}, Name: {Name}, Role: {Role}",
+        employeeId,
+        name,
+        role);
 
-    var image = await CaptureFaceAsync();
-
+    var image =
+        await CaptureFaceAsync();
 
     _faceImageServer.SetImage(image);
 
+    _logger.LogInformation(
+        "[HikvisionUserService] Face image made available to FaceImageServer. Size: {ImageSize} bytes.",
+        image.Length);
 
     try
     {
@@ -111,19 +193,29 @@ public sealed class HikvisionUserService
       await CreateFaceRecordAsync(
           employeeId,
           name);
+
+      _logger.LogInformation(
+          "[HikvisionUserService] User registration completed successfully. EmployeeId: {EmployeeId}",
+          employeeId);
     }
     catch (Exception ex)
     {
+      _logger.LogError(
+          ex,
+          "[HikvisionUserService] User registration failed. EmployeeId: {EmployeeId}, Name: {Name}, Role: {Role}",
+          employeeId,
+          name,
+          role);
 
-      Debug.WriteLine(ex);
+      throw;
     }
     finally
     {
       _faceImageServer.Clear();
+
+      _logger.LogInformation(
+          "[HikvisionUserService] Face image cleared after registration. EmployeeId: {EmployeeId}",
+          employeeId);
     }
   }
-
-
-
-
 }

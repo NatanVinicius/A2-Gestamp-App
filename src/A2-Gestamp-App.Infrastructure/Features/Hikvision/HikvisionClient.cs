@@ -5,19 +5,25 @@ using System.Text.Json;
 using A2GestampApp.Infrastructure.Hikvision.Models.Requests;
 using A2GestampApp.Infrastructure.Hikvision.Models.Responses;
 
+using Microsoft.Extensions.Logging;
+
 namespace A2GestampApp.Infrastructure.Hikvision;
 
 public sealed class HikvisionClient
 {
   private readonly HttpClient _httpClient;
+  private readonly ILogger<HikvisionClient> _logger;
 
-  public HikvisionClient()
+  public HikvisionClient(
+      ILogger<HikvisionClient> logger)
   {
+    _logger = logger;
+
     var handler = new HttpClientHandler
     {
       Credentials = new NetworkCredential(
-            "admin",
-            "@2Vision")
+          "admin",
+          "@2Vision")
     };
 
     _httpClient = new HttpClient(handler);
@@ -28,6 +34,9 @@ public sealed class HikvisionClient
       string platformIp,
       int platformPort)
   {
+    var url =
+        $"http://{deviceAddress}/ISAPI/Event/notification/httpHosts/1";
+
     var xml =
 $"""
 <?xml version="1.0" encoding="UTF-8"?>
@@ -43,24 +52,54 @@ $"""
 </HttpHostNotification>
 """;
 
+    _logger.LogInformation(
+        "[Hikvision] Registering HTTP host. Device: {DeviceAddress}, Platform: {PlatformIp}:{PlatformPort}",
+        deviceAddress,
+        platformIp,
+        platformPort);
+
     using var request = new HttpRequestMessage(
         HttpMethod.Put,
-        $"http://{deviceAddress}/ISAPI/Event/notification/httpHosts/1");
+        url);
 
     request.Content = new StringContent(
         xml,
         Encoding.UTF8,
         "application/xml");
 
-    using var response = await _httpClient.SendAsync(request);
+    try
+    {
+      using var response =
+          await _httpClient.SendAsync(request);
 
-    var body = await response.Content.ReadAsStringAsync();
+      var body =
+          await response.Content.ReadAsStringAsync();
 
-    response.EnsureSuccessStatusCode();
+      _logger.LogInformation(
+          "[Hikvision] Register HTTP host response. Status: {StatusCode}, Response: {Response}",
+          (int)response.StatusCode,
+          body);
+
+      response.EnsureSuccessStatusCode();
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(
+          ex,
+          "[Hikvision] Failed to register HTTP host. Device: {DeviceAddress}, Platform: {PlatformIp}:{PlatformPort}",
+          deviceAddress,
+          platformIp,
+          platformPort);
+
+      throw;
+    }
   }
 
   public async Task<byte[]> CaptureFaceAsync()
   {
+    const string url =
+        "http://192.168.70.40/ISAPI/AccessControl/CaptureFaceData";
+
     const string xml =
 """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -71,32 +110,63 @@ $"""
 </CaptureFaceDataCond>
 """;
 
+    _logger.LogInformation(
+        "[Hikvision] Capturing face image.");
+
     using var request = new HttpRequestMessage(
         HttpMethod.Post,
-        "http://192.168.70.40/ISAPI/AccessControl/CaptureFaceData");
+        url);
 
     request.Content = new StringContent(
         xml,
         Encoding.UTF8,
         "application/xml");
 
-    using var response = await _httpClient.SendAsync(
-        request,
-        HttpCompletionOption.ResponseHeadersRead);
+    try
+    {
+      using var response = await _httpClient.SendAsync(
+          request,
+          HttpCompletionOption.ResponseHeadersRead);
 
-    response.EnsureSuccessStatusCode();
+      _logger.LogInformation(
+          "[Hikvision] Capture face response. Status: {StatusCode}",
+          (int)response.StatusCode);
 
-    await using var stream =
-        await response.Content.ReadAsStreamAsync();
+      response.EnsureSuccessStatusCode();
 
-    return await HikvisionJpegExtractor
-        .ExtractAsync(stream);
+      await using var stream =
+          await response.Content.ReadAsStreamAsync();
+
+      var image = await HikvisionJpegExtractor
+          .ExtractAsync(stream);
+
+      _logger.LogInformation(
+          "[Hikvision] Face image captured successfully. Size: {ImageSize} bytes.",
+          image.Length);
+
+      return image;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(
+          ex,
+          "[Hikvision] Failed to capture face image.");
+
+      throw;
+    }
   }
 
   public async Task<User?> SearchUserAsync(
       string deviceAddress,
       string employeeNumber)
   {
+    var url =
+        $"http://{deviceAddress}/ISAPI/AccessControl/UserInfo/Search?format=json";
+
+    _logger.LogInformation(
+        "[Hikvision] Searching user. EmployeeNumber: {EmployeeNumber}",
+        employeeNumber);
+
     var body =
 $$"""
 {
@@ -115,61 +185,122 @@ $$"""
 
     using var request = new HttpRequestMessage(
         HttpMethod.Post,
-        $"http://{deviceAddress}/ISAPI/AccessControl/UserInfo/Search?format=json");
+        url);
 
     request.Content = new StringContent(
         body,
         Encoding.UTF8,
         "application/json");
 
-    using var response = await _httpClient.SendAsync(request);
-
-    response.EnsureSuccessStatusCode();
-
-    var json = await response.Content.ReadAsStringAsync();
-
-    using var document = JsonDocument.Parse(json);
-
-    if (!document.RootElement.TryGetProperty("UserInfoSearch", out var search))
+    try
     {
-      return null;
+      using var response =
+          await _httpClient.SendAsync(request);
+
+      var json =
+          await response.Content.ReadAsStringAsync();
+
+      _logger.LogInformation(
+          "[Hikvision] Search user response. EmployeeNumber: {EmployeeNumber}, Status: {StatusCode}",
+          employeeNumber,
+          (int)response.StatusCode);
+
+      response.EnsureSuccessStatusCode();
+
+      using var document =
+          JsonDocument.Parse(json);
+
+      if (!document.RootElement.TryGetProperty(
+              "UserInfoSearch",
+              out var search))
+      {
+        _logger.LogInformation(
+            "[Hikvision] User not found. EmployeeNumber: {EmployeeNumber}",
+            employeeNumber);
+
+        return null;
+      }
+
+      if (!search.TryGetProperty(
+              "UserInfo",
+              out var users))
+      {
+        _logger.LogInformation(
+            "[Hikvision] User not found. EmployeeNumber: {EmployeeNumber}",
+            employeeNumber);
+
+        return null;
+      }
+
+      if (users.ValueKind != JsonValueKind.Array ||
+          users.GetArrayLength() == 0)
+      {
+        _logger.LogInformation(
+            "[Hikvision] User not found. EmployeeNumber: {EmployeeNumber}",
+            employeeNumber);
+
+        return null;
+      }
+
+      var user = users[0];
+
+      var name =
+          user.TryGetProperty(
+              "name",
+              out var nameProperty)
+              ? nameProperty.GetString() ?? string.Empty
+              : string.Empty;
+
+      var userType =
+          user.TryGetProperty(
+              "userType",
+              out var typeProperty)
+              ? typeProperty.GetString() ?? string.Empty
+              : string.Empty;
+
+      var result = new User
+      {
+        EmployeeNumber = employeeNumber,
+        Name = name,
+        Role =
+            userType.Equals(
+                "auxiliaryManager",
+                StringComparison.OrdinalIgnoreCase)
+                ? UserRole.AuxiliaryManager
+                : UserRole.Normal
+      };
+
+      _logger.LogInformation(
+          "[Hikvision] User found. EmployeeNumber: {EmployeeNumber}, Name: {Name}, Role: {Role}",
+          result.EmployeeNumber,
+          result.Name,
+          result.Role);
+
+      return result;
     }
-
-    if (!search.TryGetProperty("UserInfo", out var users))
+    catch (Exception ex)
     {
-      return null;
+      _logger.LogError(
+          ex,
+          "[Hikvision] Failed to search user. EmployeeNumber: {EmployeeNumber}",
+          employeeNumber);
+
+      throw;
     }
-
-    if (users.ValueKind != JsonValueKind.Array || users.GetArrayLength() == 0)
-    {
-      return null;
-    }
-
-    var user = users[0];
-
-    var name = user.TryGetProperty("name", out var nameProperty)
-        ? nameProperty.GetString() ?? string.Empty
-        : string.Empty;
-
-    var userType = user.TryGetProperty("userType", out var typeProperty)
-        ? typeProperty.GetString() ?? string.Empty
-        : string.Empty;
-
-    return new User
-    {
-      EmployeeNumber = employeeNumber,
-      Name = name,
-      Role = userType.Equals("auxiliaryManager", StringComparison.OrdinalIgnoreCase)
-            ? UserRole.AuxiliaryManager
-            : UserRole.Normal
-    };
   }
 
   public async Task SetCardReaderEnabledAsync(bool enabled)
   {
+    const string url =
+        "http://192.168.70.40/ISAPI/AccessControl/CardReaderCfg/1?format=json";
+
+    _logger.LogInformation(
+        "[Hikvision] Setting card reader. Enabled: {Enabled}",
+        enabled);
+
     using var request = new HttpRequestMessage(
         HttpMethod.Put,
-        "http://192.168.70.40/ISAPI/AccessControl/CardReaderCfg/1?format=json");
+        url);
 
     var json = $@"
       {{
@@ -183,101 +314,197 @@ $$"""
         Encoding.UTF8,
         "application/json");
 
-    var response = await _httpClient.SendAsync(request);
+    try
+    {
+      using var response =
+          await _httpClient.SendAsync(request);
 
-    var body = await response.Content.ReadAsStringAsync();
+      var responseBody =
+          await response.Content.ReadAsStringAsync();
 
-    response.EnsureSuccessStatusCode();
+      _logger.LogInformation(
+          "[Hikvision] Card reader response. Enabled: {Enabled}, Status: {StatusCode}, Response: {Response}",
+          enabled,
+          (int)response.StatusCode,
+          responseBody);
+
+      response.EnsureSuccessStatusCode();
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(
+          ex,
+          "[Hikvision] Failed to set card reader. Enabled: {Enabled}",
+          enabled);
+
+      throw;
+    }
   }
 
   public async Task<bool> UserExistsAsync(
-    string employeeNumber)
+      string employeeNumber)
   {
+    _logger.LogInformation(
+        "[Hikvision] Checking if user exists. EmployeeNumber: {EmployeeNumber}",
+        employeeNumber);
+
     var user = await SearchUserAsync(
         "192.168.70.40",
         employeeNumber);
 
-    return user is not null;
+    var exists = user is not null;
+
+    _logger.LogInformation(
+        "[Hikvision] User existence check. EmployeeNumber: {EmployeeNumber}, Exists: {Exists}",
+        employeeNumber,
+        exists);
+
+    return exists;
   }
 
   public async Task CreateUserAsync(
-    CreateUserRequest request)
+      CreateUserRequest request)
   {
+    const string url =
+        "http://192.168.70.40/ISAPI/AccessControl/UserInfo/Record?format=json";
+
+    _logger.LogInformation(
+        "[Hikvision] Creating user. EmployeeNumber: {EmployeeNumber}, Name: {Name}, Role: {UserType}",
+        request.UserInfo.EmployeeNo,
+        request.UserInfo.Name,
+        request.UserInfo.UserType);
+
+    var serializedRequest =
+        JsonSerializer.Serialize(request);
+
     using var httpRequest = new HttpRequestMessage(
         HttpMethod.Post,
-        "http://192.168.70.40/ISAPI/AccessControl/UserInfo/Record?format=json");
+        url);
 
     httpRequest.Content = new StringContent(
-        JsonSerializer.Serialize(request),
+        serializedRequest,
         Encoding.UTF8,
         "application/json");
 
-    using var response =
-        await _httpClient.SendAsync(httpRequest);
-
-    response.EnsureSuccessStatusCode();
-
-    var json =
-        await response.Content.ReadAsStringAsync();
-
-    var result =
-        JsonSerializer.Deserialize<CreateUserResponse>(json);
-
-    if (result is null)
+    try
     {
-      throw new Exception(
-          "Resposta inválida da Hikvision.");
+      using var response =
+          await _httpClient.SendAsync(httpRequest);
+
+      var json =
+          await response.Content.ReadAsStringAsync();
+
+      _logger.LogInformation(
+          "[Hikvision] Create user response. EmployeeNumber: {EmployeeNumber}, Status: {StatusCode}, Response: {Response}",
+          request.UserInfo.EmployeeNo,
+          (int)response.StatusCode,
+          json);
+
+      response.EnsureSuccessStatusCode();
+
+      var result =
+          JsonSerializer.Deserialize<CreateUserResponse>(json);
+
+      if (result is null)
+      {
+        throw new Exception(
+            "Resposta inválida da Hikvision.");
+      }
+
+      if (!result.Success)
+      {
+        throw new Exception(
+            result.ErrorMessage ??
+            result.SubStatusCode ??
+            result.StatusString);
+      }
+
+      _logger.LogInformation(
+          "[Hikvision] User created successfully. EmployeeNumber: {EmployeeNumber}",
+          request.UserInfo.EmployeeNo);
     }
-
-    if (!result.Success)
+    catch (Exception ex)
     {
-      throw new Exception(
-          result.ErrorMessage ??
-          result.SubStatusCode ??
-          result.StatusString);
+      _logger.LogError(
+          ex,
+          "[Hikvision] Failed to create user. EmployeeNumber: {EmployeeNumber}",
+          request.UserInfo.EmployeeNo);
+
+      throw;
     }
   }
 
   public async Task CreateFaceRecordAsync(
-    CreateFaceRecordRequest request)
+      CreateFaceRecordRequest request)
   {
+    const string url =
+        "http://192.168.70.40/ISAPI/Intelligent/FDLib/FaceDataRecord?format=json";
+
+    _logger.LogInformation(
+        "[Hikvision] Creating face record. FPID: {Fpid}, Name: {Name}, FaceURL: {FaceUrl}",
+        request.Fpid,
+        request.Name,
+        request.FaceUrl);
+
+    var serializedRequest =
+        JsonSerializer.Serialize(request);
+
     using var httpRequest = new HttpRequestMessage(
         HttpMethod.Post,
-        "http://192.168.70.40/ISAPI/Intelligent/FDLib/FaceDataRecord?format=json");
+        url);
 
     httpRequest.Content = new StringContent(
-        JsonSerializer.Serialize(request),
+        serializedRequest,
         Encoding.UTF8,
         "application/json");
 
-    using var response =
-        await _httpClient.SendAsync(httpRequest);
-
-    response.EnsureSuccessStatusCode();
-
-    var body =
-        await response.Content.ReadAsStringAsync();
-
-    if (!response.IsSuccessStatusCode)
+    try
     {
-      throw new Exception(body);
+      using var response =
+          await _httpClient.SendAsync(httpRequest);
+
+      var responseBody =
+          await response.Content.ReadAsStringAsync();
+
+      _logger.LogInformation(
+          "[Hikvision] Create face response. FPID: {Fpid}, Status: {StatusCode}, Response: {Response}",
+          request.Fpid,
+          (int)response.StatusCode,
+          responseBody);
+
+      response.EnsureSuccessStatusCode();
+
+      var result =
+          JsonSerializer.Deserialize<CreateUserResponse>(
+              responseBody);
+
+      if (result is null)
+      {
+        throw new Exception(
+            "Resposta inválida da Hikvision.");
+      }
+
+      if (!result.Success)
+      {
+        throw new Exception(
+            result.ErrorMessage ??
+            result.SubStatusCode ??
+            result.StatusString);
+      }
+
+      _logger.LogInformation(
+          "[Hikvision] Face record created successfully. FPID: {Fpid}",
+          request.Fpid);
     }
-
-    var result =
-        JsonSerializer.Deserialize<CreateUserResponse>(body);
-
-    if (result is null)
+    catch (Exception ex)
     {
-      throw new Exception(
-          "Resposta inválida da Hikvision.");
-    }
+      _logger.LogError(
+          ex,
+          "[Hikvision] Failed to create face record. FPID: {Fpid}, FaceURL: {FaceUrl}",
+          request.Fpid,
+          request.FaceUrl);
 
-    if (!result.Success)
-    {
-      throw new Exception(
-          result.ErrorMessage ??
-          result.SubStatusCode ??
-          result.StatusString);
+      throw;
     }
   }
 }
