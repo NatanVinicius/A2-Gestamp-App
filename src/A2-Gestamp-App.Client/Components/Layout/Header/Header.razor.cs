@@ -1,5 +1,6 @@
 using System.Timers;
 
+using A2GestampApp.Application.Features.AdminAuthentication;
 using A2GestampApp.Application.Features.System;
 
 using Microsoft.AspNetCore.Components;
@@ -15,7 +16,12 @@ public partial class Header : ComponentBase, IDisposable
   [Inject]
   protected ISystemState SystemState { get; set; } = default!;
 
+  [Inject]
+  protected IAdminAuthenticationState AdminAuthenticationState { get; set; } = default!;
+
   protected bool IsCommunicationModalOpen;
+
+  protected bool IsSkuConfigurationModalOpen;
 
   protected string CurrentTime =>
       DateTime.Now.ToString("HH:mm:ss");
@@ -29,6 +35,7 @@ public partial class Header : ComponentBase, IDisposable
     _timer.Start();
 
     SystemState.StateChanged += OnSystemStateChanged;
+    AdminAuthenticationState.StateChanged += OnAdminAuthenticationStateChanged;
   }
 
   private void OnTimerElapsed(
@@ -43,9 +50,29 @@ public partial class Header : ComponentBase, IDisposable
     InvokeAsync(StateHasChanged);
   }
 
+  private void OnAdminAuthenticationStateChanged()
+  {
+    if (AdminAuthenticationState.Status ==
+        FaceRecognitionStatus.Success &&
+        AdminAuthenticationState.Purpose ==
+        AdminAuthenticationPurpose.Sku)
+    {
+      IsSkuConfigurationModalOpen = true;
+    }
+
+    _ = InvokeAsync(StateHasChanged);
+  }
+
   protected void OpenCommunicationModal()
   {
     IsCommunicationModalOpen = true;
+  }
+
+  protected void OpenSkuConfiguration()
+  {
+    //AdminAuthenticationState.Open(
+    //AdminAuthenticationPurpose.Sku);
+    IsSkuConfigurationModalOpen = true;
   }
 
   protected string GetStatusColor(
@@ -62,5 +89,6 @@ public partial class Header : ComponentBase, IDisposable
     _timer.Dispose();
 
     SystemState.StateChanged -= OnSystemStateChanged;
+    AdminAuthenticationState.StateChanged -= OnAdminAuthenticationStateChanged;
   }
 }

@@ -8,7 +8,7 @@ using NModbus;
 
 namespace A2GestampApp.Infrastructure.Features.Plc;
 
-public sealed class PlcService : IPlcService, IDisposable
+public sealed class PlcService : IPlcService, IAsyncDisposable
 {
   private const string IpAddress = "192.168.70.20";
 
@@ -86,6 +86,10 @@ public sealed class PlcService : IPlcService, IDisposable
           PlcRegisters.SoftwareAlive,
           1);
 
+      await WriteAsync(
+         PlcRegisters.SoftwareAliveConfirm,
+         1);
+
       if (_heartbeatTask is null || _heartbeatTask.IsCompleted)
       {
         _heartbeatCancellationTokenSource = new();
@@ -135,6 +139,11 @@ public sealed class PlcService : IPlcService, IDisposable
         await WriteAsync(
             PlcRegisters.SoftwareAlive,
             0);
+
+        await _master.WriteSingleRegisterAsync(
+              SlaveId,
+              PlcRegisters.SoftwareAliveConfirm,
+              0);
 
         _heartbeatCancellationTokenSource?.Cancel();
 
@@ -215,6 +224,80 @@ public sealed class PlcService : IPlcService, IDisposable
     }
   }
 
+  public async Task SetWaitingAsync()
+  {
+    await WriteAsync(
+        PlcRegisters.Waiting,
+        1);
+  }
+
+  public async Task<ushort> ReadAsync(
+    ushort register)
+  {
+    if (_master is null)
+    {
+      _logger.LogWarning(
+          "[PLC] Read ignored because PLC master is not initialized. Register: {Register}",
+          register);
+
+      throw new InvalidOperationException(
+          "PLC master is not initialized.");
+    }
+
+    _logger.LogInformation(
+        "[PLC] Reading register. SlaveId: {SlaveId}, Register: {Register}",
+        SlaveId,
+        register);
+
+    try
+    {
+      ushort[] values =
+          await _master.ReadHoldingRegistersAsync(
+              SlaveId,
+              register,
+              1);
+
+      ushort value = values[0];
+
+      _logger.LogInformation(
+          "[PLC] Register read successfully. SlaveId: {SlaveId}, Register: {Register}, Value: {Value}",
+          SlaveId,
+          register,
+          value);
+
+      return value;
+    }
+    catch (Exception ex)
+    {
+      _systemState.SetPlcStatus(
+          CommunicationStatus.Disconnected);
+
+      _logger.LogError(
+          ex,
+          "[PLC] Error reading register. SlaveId: {SlaveId}, Register: {Register}",
+          SlaveId,
+          register);
+
+      throw;
+    }
+  }
+
+  public async Task<int> ReadCurrentTableAsync()
+  {
+    ushort value =
+        await ReadAsync(
+            PlcRegisters.CurrentTable);
+
+    return value switch
+    {
+      1 => 1,
+      2 => 2,
+
+      _ => throw new InvalidOperationException(
+          $"PLC retornou uma mesa inválida no D6: {value}.")
+    };
+  }
+
   private async Task HeartbeatAsync(
       CancellationToken cancellationToken)
   {
@@ -246,6 +329,11 @@ public sealed class PlcService : IPlcService, IDisposable
           await _master.WriteSingleRegisterAsync(
               SlaveId,
               PlcRegisters.SoftwareAlive,
+              1);
+
+          await _master.WriteSingleRegisterAsync(
+              SlaveId,
+              PlcRegisters.SoftwareAliveConfirm,
               1);
 
           _systemState.SetPlcStatus(
@@ -299,13 +387,20 @@ public sealed class PlcService : IPlcService, IDisposable
     }
   }
 
-  public void Dispose()
+  public async ValueTask DisposeAsync()
   {
     _logger.LogInformation(
         "[PLC] Disposing PLC service.");
 
     _systemState.SetPlcStatus(
         CommunicationStatus.Disconnected);
+    await WriteAsync(
+            PlcRegisters.SoftwareAlive,
+            0);
+
+    await WriteAsync(
+         PlcRegisters.SoftwareAliveConfirm,
+         0);
 
     _tcpClient.Dispose();
 

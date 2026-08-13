@@ -3,6 +3,7 @@ using A2GestampApp.Application.Features.Export;
 using A2GestampApp.Application.Features.Inspection;
 using A2GestampApp.Application.Features.Inspection.Services;
 using A2GestampApp.Application.Features.Ng;
+using A2GestampApp.Application.Features.Sku;
 using A2GestampApp.Application.Features.System;
 using A2GestampApp.Application.Startup;
 
@@ -39,6 +40,8 @@ public static class ApplicationServiceCollectionExtensions
     services.AddSingleton<IAdminAuthenticationState, AdminAuthenticationState>();
 
     services.AddSingleton<ISignUpState, SignUpState>();
+
+    services.AddSingleton<ISkuService, SkuService>();
 
     return services;
   }

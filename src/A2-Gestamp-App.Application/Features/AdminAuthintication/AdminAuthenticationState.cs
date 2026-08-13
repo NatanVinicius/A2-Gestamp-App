@@ -13,15 +13,22 @@ public sealed class AdminAuthenticationState : IAdminAuthenticationState
 
   private readonly IFaceRecognitionService _faceRecognitionService;
 
+  public AdminAuthenticationPurpose Purpose { get; private set; }
+    = AdminAuthenticationPurpose.Signup;
+
   public AdminAuthenticationState(
       IFaceRecognitionService faceRecognitionService)
   {
     _faceRecognitionService = faceRecognitionService;
   }
 
-  public void Open()
+  public void Open(
+    AdminAuthenticationPurpose purpose =
+        AdminAuthenticationPurpose.Signup)
   {
     IsOpen = true;
+
+    Purpose = purpose;
 
     Status = FaceRecognitionStatus.Waiting;
 

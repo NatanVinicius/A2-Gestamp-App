@@ -108,6 +108,17 @@ internal sealed class ApplicationStartup : IApplicationStartup
     _logger.LogInformation(
         "[Application] Inspection event handlers registered.");
 
+    try
+    {
+      await _plcService.ConnectAsync();
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(
+          ex,
+          "[Application] Unable to connect to PLC.");
+    }
+
     _imageWatcher.Start();
 
     _logger.LogInformation(
@@ -133,16 +144,7 @@ internal sealed class ApplicationStartup : IApplicationStartup
     _logger.LogInformation(
         "[Application] Face recognition disabled after startup.");
 
-    try
-    {
-      await _plcService.ConnectAsync();
-    }
-    catch (Exception ex)
-    {
-      _logger.LogError(
-          ex,
-          "[Application] Unable to connect to PLC.");
-    }
+
 
     _logger.LogInformation(
         "[Application] Application started.");

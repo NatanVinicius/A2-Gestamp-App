@@ -133,6 +133,29 @@ public sealed class KeyenceService : IKeyenceService
     }
   }
 
+  public async Task SetModelAsync(int model)
+  {
+    string command = $"CWN,1,1,{model}\r";
+
+    foreach (KeyenceTcpConnection connection in _connections)
+    {
+      try
+      {
+        await connection.SendAsync(command);
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(
+            ex,
+            "[Keyence] Failed to set model {Model} on camera {Camera}.",
+            model,
+            connection.Camera.Name);
+
+        throw;
+      }
+    }
+  }
+
   private void OnConnected(KeyenceTcpConnection connection)
   {
     _logger.LogInformation(
