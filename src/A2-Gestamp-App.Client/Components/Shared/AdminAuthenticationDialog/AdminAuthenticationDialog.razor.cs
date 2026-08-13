@@ -33,21 +33,27 @@ public partial class AdminAuthenticationDialog
     {
       _navigationScheduled = true;
 
-      _ = NavigateAfterSuccessAsync();
+      _ = HandleSuccessAsync();
     }
 
     _ = InvokeAsync(StateHasChanged);
   }
 
-  private async Task NavigateAfterSuccessAsync()
+  private async Task HandleSuccessAsync()
   {
     await Task.Delay(1000);
 
     await InvokeAsync(() =>
     {
+      AdminAuthenticationPurpose purpose =
+          State.Purpose;
+
       State.Close();
 
-      Navigation.NavigateTo("/signup");
+      if (purpose == AdminAuthenticationPurpose.Signup)
+      {
+        Navigation.NavigateTo("/signup");
+      }
 
       _navigationScheduled = false;
     });

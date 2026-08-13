@@ -36,8 +36,10 @@ public static class MauiProgram
     builder.Logging.AddSerilog(Log.Logger);
 
     builder.Services
-        .AddApplication()
-        .AddInfrastructure(builder.Configuration);
+    .AddApplication()
+    .AddInfrastructure(
+        builder.Configuration,
+        FileSystem.AppDataDirectory);
 
     builder.Services.Configure<NetworkSettings>(
         builder.Configuration.GetSection("Network"));

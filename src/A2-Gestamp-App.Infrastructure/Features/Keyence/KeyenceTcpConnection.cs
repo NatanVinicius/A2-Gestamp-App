@@ -184,6 +184,28 @@ public sealed class KeyenceTcpConnection : IDisposable
     }
   }
 
+  public async Task SendAsync(string message)
+  {
+    if (_stream is null || !IsConnected)
+    {
+      _logger.LogWarning(
+          "[Keyence] Send ignored because camera {Camera} is not connected.",
+          _camera.Name);
+
+      throw new InvalidOperationException(
+          $"Camera {_camera.Name} is not connected.");
+    }
+
+    byte[] data = Encoding.ASCII.GetBytes(message);
+
+    await _stream.WriteAsync(data);
+
+    _logger.LogInformation(
+        "[Keyence] Message sent to camera {Camera}: {Message}",
+        _camera.Name,
+        message);
+  }
+
   public async Task DisconnectAsync()
   {
     _logger.LogInformation(

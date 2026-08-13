@@ -7,4 +7,6 @@ public interface IKeyenceService
   public Task StartAsync(CancellationToken cancellationToken = default);
 
   public Task StopAsync();
+
+  public Task SetModelAsync(int model);
 }

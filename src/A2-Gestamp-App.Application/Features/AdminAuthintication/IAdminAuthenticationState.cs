@@ -8,9 +8,12 @@ public interface IAdminAuthenticationState
 
   public int RemainingSeconds { get; }
 
+  public AdminAuthenticationPurpose Purpose { get; }
+
   public event Action? StateChanged;
 
-  public void Open();
+  public void Open(
+      AdminAuthenticationPurpose purpose = AdminAuthenticationPurpose.Signup);
 
   public void Close();
 
@@ -19,5 +22,4 @@ public interface IAdminAuthenticationState
   public Task AuthenticateAsync(UserRole role);
 
   public void Logout();
-
 }

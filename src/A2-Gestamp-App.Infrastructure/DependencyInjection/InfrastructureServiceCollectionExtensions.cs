@@ -1,8 +1,12 @@
+using System.Diagnostics;
+
 using A2GestampApp.Application.Features.FaceCapture;
 using A2GestampApp.Application.Features.Hikvision;
+using A2GestampApp.Application.Features.Sku;
 using A2GestampApp.Infrastructure.Features.Database;
 using A2GestampApp.Infrastructure.Features.Images;
 using A2GestampApp.Infrastructure.Features.Plc;
+using A2GestampApp.Infrastructure.Features.Sku;
 using A2GestampApp.Infrastructure.Hikvision;
 
 using Microsoft.Extensions.Configuration;
@@ -14,8 +18,14 @@ public static class InfrastructureServiceCollectionExtensions
 {
   public static IServiceCollection AddInfrastructure(
       this IServiceCollection services,
-      IConfiguration configuration)
+      IConfiguration configuration,
+    string appDataDirectory)
   {
+
+    Debug.WriteLine(
+        $"SKU AppDataDirectory: {appDataDirectory}");
+
+
     services.AddSingleton<INetworkConnectionService, NetworkConnectionService>();
 
     services.AddKeyence(configuration);
@@ -38,6 +48,9 @@ public static class InfrastructureServiceCollectionExtensions
         provider.GetRequiredService<FaceImageServer>());
 
     services.AddSingleton<IFaceCaptureState, FaceCaptureState>();
+
+    services.AddSingleton<ISkuRecipeService>(
+    new SkuRecipeService(appDataDirectory));
 
     return services;
   }

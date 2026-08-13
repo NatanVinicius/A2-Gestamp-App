@@ -1,51 +1,62 @@
 @using A2GestampApp.Client.Components.Shared
 @using A2GestampApp.Client.Components.Shared.Settings
 @using A2GestampApp.Application.Features.Keyence
+@using A2GestampApp.Client.Components.Shared.SkuConfigurationDialog
 
-<header class="h-16 p-2 bg-background flex items-center">
+<header class="flex h-16 items-center bg-background p-2">
 
-    <div>
-        <img src="assets/logo.png" alt="Logo" class="h-10 w-auto" />
-    </div>
+	<div>
+		<img src="assets/logo.png" alt="Logo" class="h-10 w-auto" />
+	</div>
 
-    <button class="ml-8" @onclick="OpenCommunicationModal">
-        <i class="fa-solid fa-gear text-[18px] text-primary cursor-pointer transition-colors ease-in-out hover:text-primary/90"></i>
-    </button>
+	<button class="ml-8"
+			@onclick="OpenCommunicationModal">
+		<i class="fa-solid fa-gear cursor-pointer text-[18px] text-primary transition-colors ease-in-out hover:text-primary/90"></i>
+	</button>
 
-    <div class="flex-1 flex justify-center text-xs">
-        <div class="flex gap-4">
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full @GetStatusColor(SystemState.GetCamera1Status())"></div>
+	<button class="ml-4"
+			@onclick="OpenSkuConfiguration">
+		<i class="fa-solid fa-boxes-stacked cursor-pointer text-[18px] text-primary transition-colors ease-in-out hover:text-primary/90"></i>
+	</button>
 
-                <p>Câmera 1</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full @GetStatusColor(SystemState.GetCamera2Status())"></div>
 
-                <p>Câmera 2</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full @GetStatusColor(SystemState.GetCamera3Status())"></div>
 
-                <p>Câmera 3</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full @GetStatusColor(SystemState.GetPlcStatus())"></div>
-                <p>PLC</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full @GetStatusColor(SystemState.GetHikvisionStatus())"></div>
-                <p>Face Id</p>
-            </div>
-        </div>
+	<div class="flex flex-1 justify-center text-xs">
+		<div class="flex gap-4">
+			<div class="flex items-center gap-2">
+				<div class="h-2 w-2 rounded-full @GetStatusColor(SystemState.GetCamera1Status())"></div>
 
-    </div>
+				<p>Câmera 1</p>
+			</div>
+			<div class="flex items-center gap-2">
+				<div class="h-2 w-2 rounded-full @GetStatusColor(SystemState.GetCamera2Status())"></div>
 
-    <div class="min-w-21">
-        <p class="text-xl">@CurrentTime</p>
-        <p class="text-[14px] text-white/70 text-center">@CurrentDate</p>
-    </div>
+				<p>Câmera 2</p>
+			</div>
+			<div class="flex items-center gap-2">
+				<div class="h-2 w-2 rounded-full @GetStatusColor(SystemState.GetCamera3Status())"></div>
 
-    <CommunicationSettingsModal @bind-IsOpen="IsCommunicationModalOpen" />
+				<p>Câmera 3</p>
+			</div>
+			<div class="flex items-center gap-2">
+				<div class="h-2 w-2 rounded-full @GetStatusColor(SystemState.GetPlcStatus())"></div>
+				<p>PLC</p>
+			</div>
+			<div class="flex items-center gap-2">
+				<div class="h-2 w-2 rounded-full @GetStatusColor(SystemState.GetHikvisionStatus())"></div>
+				<p>Face Id</p>
+			</div>
+		</div>
+
+	</div>
+
+	<div class="min-w-21">
+		<p class="text-xl">@CurrentTime</p>
+		<p class="text-center text-[14px] text-white/70">@CurrentDate</p>
+	</div>
+
+	<CommunicationSettingsModal @bind-IsOpen="IsCommunicationModalOpen" />
+
+	<SkuConfigurationDialog @bind-IsOpen="IsSkuConfigurationModalOpen" />
 
 </header>
