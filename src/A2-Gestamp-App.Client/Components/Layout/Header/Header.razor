@@ -1,7 +1,5 @@
-@using A2GestampApp.Client.Components.Shared
+
 @using A2GestampApp.Client.Components.Shared.Settings
-@using A2GestampApp.Application.Features.Keyence
-@using A2GestampApp.Client.Components.Shared.SkuConfigurationDialog
 
 <header class="flex h-16 items-center bg-background p-2">
 
@@ -13,13 +11,6 @@
 			@onclick="OpenCommunicationModal">
 		<i class="fa-solid fa-gear cursor-pointer text-[18px] text-primary transition-colors ease-in-out hover:text-primary/90"></i>
 	</button>
-
-	<button class="ml-4"
-			@onclick="OpenSkuConfiguration">
-		<i class="fa-solid fa-boxes-stacked cursor-pointer text-[18px] text-primary transition-colors ease-in-out hover:text-primary/90"></i>
-	</button>
-
-
 
 	<div class="flex flex-1 justify-center text-xs">
 		<div class="flex gap-4">
@@ -56,7 +47,5 @@
 	</div>
 
 	<CommunicationSettingsModal @bind-IsOpen="IsCommunicationModalOpen" />
-
-	<SkuConfigurationDialog @bind-IsOpen="IsSkuConfigurationModalOpen" />
 
 </header>
