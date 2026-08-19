@@ -19,17 +19,17 @@
 				@if (RenderMode == InspectionRenderMode.Image)
 				{
 					<img src="@($"{Camera.ImagePath}?v={ImageVersion}")"
-						 class="h-full w-full" />
+						 class="h-full w-full object-cover" />
 				}
 				else
 				{
 					<!-- Imagem de fundo -->
 					<img src="@($"{Camera.ImagePath}?v={ImageVersion}")"
-						 class="object-contain" />
+						 class="h-full w-full object-cover" />
 
 					<!-- Overlay -->
 					<img src="@($"{Camera.OverlayPath}?v={ImageVersion}")"
-						 class="pointer-events-none absolute inset-0 h-full w-full object-contain" />
+						 class="absolute inset-0 h-full w-full object-cover" />
 				}
 			}
 			else
