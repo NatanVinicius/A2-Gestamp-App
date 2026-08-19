@@ -25,6 +25,8 @@ public partial class HomePage : IDisposable
         _ => null
       };
 
+  private long _imageVersion;
+
   protected override void OnInitialized()
   {
     _inspection = InspectionState.CurrentInspection;
@@ -35,6 +37,7 @@ public partial class HomePage : IDisposable
   private void OnInspectionChanged()
   {
     _inspection = InspectionState.CurrentInspection;
+    _imageVersion++;
 
     InvokeAsync(StateHasChanged);
   }

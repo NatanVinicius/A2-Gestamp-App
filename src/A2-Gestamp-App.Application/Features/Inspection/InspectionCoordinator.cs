@@ -10,6 +10,8 @@ namespace A2GestampApp.Application.Features.Inspection;
 
 public sealed class InspectionCoordinator : IInspectionCoordinator
 {
+  private readonly IInspectionState? _inspectionState;
+
   private DomainInspection _inspection = new();
 
   // Opções para formatar o JSON bonitinho no log (opcional)
@@ -19,6 +21,13 @@ public sealed class InspectionCoordinator : IInspectionCoordinator
   };
 
   public event Action<DomainInspection>? InspectionCompleted;
+
+  public InspectionCoordinator(
+    IInspectionState inspectionState
+)
+  {
+    _inspectionState = inspectionState;
+  }
 
   public void Process(CameraInspectionResult result)
   {
@@ -52,6 +61,8 @@ public sealed class InspectionCoordinator : IInspectionCoordinator
 
     // Serializa o objeto Inspection inteiro para JSON
     string inspectionJson = JsonSerializer.Serialize(_inspection, _jsonOptions);
+
+    _inspectionState.NotifyChanged();
 
     TryCompleteInspection();
   }

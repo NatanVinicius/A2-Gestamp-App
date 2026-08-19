@@ -24,7 +24,7 @@ public sealed class FaceCaptureState
 
   public void Open()
   {
-    RemainingSeconds = 10;
+    RemainingSeconds = 5;
 
     Status = FaceCaptureStatus.Waiting;
 
@@ -90,7 +90,7 @@ public sealed class FaceCaptureState
 
       await Task.Delay(2000);
 
-      RemainingSeconds = 10;
+      RemainingSeconds = 5;
 
       Status = FaceCaptureStatus.Waiting;
 

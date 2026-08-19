@@ -1,8 +1,8 @@
-@page "/"
+﻿@page "/"
 
 @using A2GestampApp.Client.Components.Pages.HomePage.Components
 
-<div class="w-full h-full pr-2 flex flex-col gap-4">
+<div class="flex h-full w-full flex-col gap-4 pr-2">
 
     <h3 class="text-white/60">
         > Home
@@ -10,13 +10,14 @@
 
     <Stats />
 
-    <div class="flex-1 min-h-0 flex gap-4 overflow-hidden">
+    <div class="flex min-h-0 flex-1 gap-4 overflow-hidden">
 
-        <Inspection CameraCount="3"
-                    CurrentIndex="@_currentIndex"
-                    CurrentIndexChanged="@(i => _currentIndex = i)"
-                    Camera="@CurrentCamera"
-                    RenderMode="InspectionRenderMode.Image" />
+		<Inspection CameraCount="3"
+					CurrentIndex="@_currentIndex"
+					CurrentIndexChanged="@(i => _currentIndex = i)"
+					Camera="@CurrentCamera"
+					ImageVersion="@_imageVersion"
+					RenderMode="InspectionRenderMode.Image" />
 
         <Tools Camera="@CurrentCamera" />
 

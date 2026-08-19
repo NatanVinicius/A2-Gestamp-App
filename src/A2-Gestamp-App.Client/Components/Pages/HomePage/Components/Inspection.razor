@@ -1,75 +1,78 @@
 
-<div class="h-full w-full min-h-0 flex flex-col bg-card rounded-md overflow-hidden">
-  <div class="flex justify-between py-4 px-4 text-sm bg-border">
-    <p>INSPEÇÃO ATUAL</p>
-    <div class="flex gap-6">
-      <p>
-              
-      </p>
-      <div class="w-20 flex items-center justify-end gap-2">
-        <i class="fa-solid fa-camera text-primary"></i>
-        <span class="w-6">VS@(Camera?.CameraId)</span>
-      </div>
-    </div>
-  </div>
-    <div class="relative flex-1 flex overflow-hidden px-4 pt-4">
-        <div class="relative w-full h-full flex items-center justify-center rounded-md shadow-lg overflow-hidden bg-black/50">
-            @if (Camera?.HasImage == true)
-            {
-                @if (RenderMode == InspectionRenderMode.Image)
-                {
-                    <img src="@Camera.ImagePath"
-                         class="w-full h-full object-fill" />
-                }
-                else
-                {
-                    <!-- Imagem de fundo -->
-                    <img src="@Camera.ImagePath" class="object-contain" />
+<div class="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-md bg-card">
+	<div class="flex justify-between bg-border px-4 py-4 text-sm">
+		<p>INSPEÇÃO ATUAL</p>
+		<div class="flex gap-6">
+			<p>
 
-                    <!-- O SVG tratado como Imagem (força o navegador a redimensionar proporcionalmente igual ao JPG) -->
-                    <img src="@Camera.OverlayPath" class="absolute inset-0 w-full h-full object-contain pointer-events-none" />
-                }
-            } else
-            {
-                <p>Aguardando imagem...</p>
-            }
-        </div>
+			</p>
+			<div class="flex w-20 items-center justify-end gap-2">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera-icon lucide-camera text-primary"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z" /><circle cx="12" cy="13" r="3" /></svg>
+				<span class="w-6">VS@(Camera?.CameraId)</span>
+			</div>
+		</div>
+	</div>
+	<div class="relative flex flex-1 overflow-hidden px-4 pt-4">
+		<div class="relative flex h-full w-full items-center justify-center overflow-hidden rounded-md bg-black/50 shadow-lg">
+			@if (Camera?.HasImage == true)
+			{
+				@if (RenderMode == InspectionRenderMode.Image)
+				{
+					<img src="@($"{Camera.ImagePath}?v={ImageVersion}")"
+						 class="h-full w-full" />
+				}
+				else
+				{
+					<!-- Imagem de fundo -->
+					<img src="@($"{Camera.ImagePath}?v={ImageVersion}")"
+						 class="object-contain" />
 
-        @if (CameraCount > 1)
-        {
-            <button @onclick="Previous"
-                    class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition">
+					<!-- Overlay -->
+					<img src="@($"{Camera.OverlayPath}?v={ImageVersion}")"
+						 class="pointer-events-none absolute inset-0 h-full w-full object-contain" />
+				}
+			}
+			else
+			{
+				<p>Aguardando imagem...</p>
+			}
+		</div>
 
-                ❮
+		@if (CameraCount > 1)
+		{
+			<button @onclick="Previous"
+					class="absolute top-1/2 left-4 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white transition hover:bg-black/70">
 
-            </button>
+				❮
 
-            <button @onclick="Next"
-                    class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition">
+			</button>
 
-                ❯
+			<button @onclick="Next"
+					class="absolute top-1/2 right-4 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white transition hover:bg-black/70">
 
-            </button>
-        }
+				❯
 
-    </div>
+			</button>
+		}
 
-    @if (true)
-    {
-        <div class="flex justify-center gap-4 pt-2 pb-4">
+	</div>
 
-            @for (int i = 0; i < 3; i++)
-            {
-                int index = i;
+	@if (true)
+	{
+		<div class="flex justify-center gap-4 pt-2 pb-4">
 
-                <button @onclick="() => GoTo(index)"
-                        class="w-3 h-3 rounded-full transition-all duration-300
-                    @(index == CurrentIndex
-                            ? "bg-primary scale-125"
-                            : "bg-gray-400 hover:bg-gray-500")">
-                </button>
-            }
+			@for (int i = 0; i < 3; i++)
+			{
+				int index = i;
 
-        </div>
-    }
+				<button @onclick="() => GoTo(index)"
+						class="w-3 h-3 rounded-full transition-all duration-300
+					@(index == CurrentIndex
+							? "bg-primary scale-125"
+							: "bg-gray-400 hover:bg-gray-500")">
+				</button>
+			}
+
+		</div>
+	}
 </div>
