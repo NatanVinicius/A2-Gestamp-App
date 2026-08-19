@@ -63,7 +63,7 @@ public partial class AdminAuthenticationDialog
   {
     State.Close();
 
-    Navigation.NavigateTo("/signup");
+    Navigation.NavigateTo("/");
   }
 
   public void Dispose()

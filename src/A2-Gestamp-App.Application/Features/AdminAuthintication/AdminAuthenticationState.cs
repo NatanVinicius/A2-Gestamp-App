@@ -39,7 +39,7 @@ public sealed class AdminAuthenticationState : IAdminAuthenticationState
 
   public async void Close()
   {
-    //await _faceRecognitionService.DisableAsync();
+    await _faceRecognitionService.DisableAsync();
 
     IsOpen = false;
 

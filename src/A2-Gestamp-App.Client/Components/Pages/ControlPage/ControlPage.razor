@@ -10,7 +10,7 @@
 		<div>
 			<p>Olá, @(UserState.User?.Name)</p>
 		</div>
-		@if (UserState.User?.Name == null)
+		@if (UserState.User?.Name != null)
 		{
 			<div class="flex items-center justify-center gap-6">
 
