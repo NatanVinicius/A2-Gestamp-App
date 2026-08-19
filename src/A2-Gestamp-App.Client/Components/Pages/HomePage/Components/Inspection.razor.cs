@@ -22,6 +22,9 @@ public partial class Inspection
   public InspectionRenderMode RenderMode { get; set; }
     = InspectionRenderMode.Image;
 
+  [Parameter]
+  public long ImageVersion { get; set; }
+
   private Task Next()
   {
     if (CameraCount <= 1)

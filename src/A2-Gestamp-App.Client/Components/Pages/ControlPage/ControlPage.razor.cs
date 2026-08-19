@@ -32,6 +32,8 @@ public partial class ControlPage : IDisposable
 
   private int _currentIndex;
 
+  private long _imageVersion;
+
   private CameraInspection? CurrentCamera =>
       _currentIndex switch
       {
@@ -58,6 +60,7 @@ public partial class ControlPage : IDisposable
   private void OnInspectionChanged()
   {
     _inspection = InspectionState.CurrentInspection;
+    _imageVersion++;
 
     InvokeAsync(StateHasChanged);
   }

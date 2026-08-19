@@ -2,82 +2,83 @@
 
 <div class="grid grid-cols-7 gap-3">
 
-    <div class="bg-card rounded-md px-4 py-3 flex items-center gap-4">
-        <i class="fa-solid fa-industry text-2xl text-blue-500"></i>
+    <div class="flex items-center gap-4 rounded-md bg-card px-4 py-3">
+		<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-factory-icon lucide-factory text-blue-500"><path d="M12 16h.01" /><path d="M16 16h.01" /><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" /><path d="M8 16h.01" /></svg>
 
         <div>
-            <p class="text-xs uppercase tracking-wide text-white/60">Produzidas</p>
-            <p class="font-semibold text-sm text-center mt-1">
+            <p class="text-xs tracking-wide text-white/60 uppercase">Produzidas</p>
+            <p class="mt-1 text-center text-sm font-semibold">
                 @Statistics.Produced
                 <span class="text-sm font-normal text-white/70">un.</span>
             </p>
         </div>
     </div>
 
-    <div class="bg-card rounded-md px-4 py-3 flex items-center gap-4">
-        <i class="fa-solid fa-circle-check text-2xl text-green-500"></i>
+    <div class="flex items-center gap-4 rounded-md bg-card px-4 py-3">
+		<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check-icon lucide-circle-check text-green-500"><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" /></svg>
 
         <div>
-            <p class="text-xs uppercase tracking-wide text-white/60">Aprovadas</p>
-            <p class="font-semibold text-sm text-center mt-1">
+            <p class="text-xs tracking-wide text-white/60 uppercase">Aprovadas</p>
+            <p class="mt-1 text-center text-sm font-semibold">
                 @Statistics.Approved
                 <span class="text-sm font-normal text-white/70">un.</span>
             </p>
         </div>
     </div>
 
-    <div class="bg-card rounded-md px-4 py-3 flex items-center gap-4">
-        <i class="fa-solid fa-circle-xmark text-2xl text-red-500"></i>
+    <div class="flex items-center gap-4 rounded-md bg-card px-4 py-3">
+		<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-x-icon lucide-circle-x text-red-500"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></svg>
+
 
         <div>
-            <p class="text-xs uppercase tracking-wide text-white/60">Reprovadas</p>
-            <p class="font-semibold text-sm text-center mt-1">
+            <p class="text-xs tracking-wide text-white/60 uppercase">Reprovadas</p>
+            <p class="mt-1 text-center text-sm font-semibold">
                 @Statistics.Reproved
                 <span class="text-sm font-normal text-white/70">un.</span>
             </p>
         </div>
     </div>
 
-    <div class="bg-card rounded-md px-4 py-3 flex items-center gap-4">
-        <i class="fa-solid fa-magnifying-glass text-2xl text-yellow-500"></i>
+    <div class="flex items-center gap-4 rounded-md bg-card px-4 py-3">
+		<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-icon lucide-search"><path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" /></svg>
 
         <div>
-            <p class="text-xs uppercase tracking-wide text-white/60">Últ. Insp.</p>
-            <p class="font-semibold text-sm text-center mt-1">
+            <p class="text-xs tracking-wide text-white/60 uppercase">Últ. Insp.</p>
+            <p class="mt-1 text-center text-sm font-semibold">
                 @Statistics.LastInspectionResult
             </p>
         </div>
     </div>
 
-    <div class="bg-card rounded-md px-4 py-3 flex items-center gap-4">
-        <i class="fa-solid fa-arrow-trend-down text-2xl text-pink-500"></i>
+    <div class="flex items-center gap-4 rounded-md bg-card px-4 py-3">
+		<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ff00a2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-down-icon lucide-trending-down"><path d="M16 17h6v-6" /><path d="m22 17-8.5-8.5-5 5L2 7" /></svg>
 
         <div>
-            <p class="text-xs uppercase tracking-wide text-white/60">Índ. Rejeito</p>
-            <p class="font-semibold text-sm text-center mt-1">
+            <p class="text-xs tracking-wide text-white/60 uppercase">Índ. Rejeito</p>
+            <p class="mt-1 text-center text-sm font-semibold">
                 @Statistics.RejectionRate.ToString("F2")%
             </p>
         </div>
     </div>
 
-    <div class="bg-card rounded-md px-4 py-3 flex items-center gap-4">
-        <i class="fa-solid fa-clock text-2xl text-purple-500"></i>
+    <div class="flex items-center gap-4 rounded-md bg-card px-4 py-3">
+		<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9900ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-icon lucide-clock"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
 
         <div>
-            <p class="text-xs uppercase tracking-wide text-white/60">Temp. Ciclo</p>
-            <p class="font-semibold text-sm text-center mt-1">
+            <p class="text-xs tracking-wide text-white/60 uppercase">Temp. Ciclo</p>
+            <p class="mt-1 text-center text-sm font-semibold">
                 @Statistics.LastCycleTime.TotalMilliseconds.ToString("F0")
                 <span class="text-sm font-normal text-white/70">ms</span>
             </p>
         </div>
     </div>
 
-    <div class="bg-card rounded-md px-4 py-3 flex items-center justify-center gap-4">
-        <i class="fa-solid fa-arrow-trend-up text-2xl text-green-300"></i>
+    <div class="flex items-center justify-center gap-4 rounded-md bg-card px-4 py-3">
+		<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9cf58a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up-icon lucide-trending-up"><path d="M16 7h6v6" /><path d="m22 7-8.5 8.5-5-5L2 17" /></svg>
 
         <div>
-            <p class="text-xs uppercase tracking-wide text-white/60">Disponib.</p>
-            <p class="font-semibold text-sm text-center mt-1">100%</p>
+            <p class="text-xs tracking-wide text-white/60 uppercase">Disponib.</p>
+            <p class="mt-1 text-center text-sm font-semibold">100%</p>
         </div>
     </div>
 

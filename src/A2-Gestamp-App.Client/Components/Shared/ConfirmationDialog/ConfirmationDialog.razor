@@ -1,14 +1,14 @@
 @if (ConfirmationState.IsOpen)
 {
-    <div class="fixed inset-0 z-50 backdrop-blur-sm flex items-center justify-center">
+    <div class="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
 
-        <div class="w-[500px] rounded-xl bg-border shadow-2xl overflow-hidden relative">
+        <div class="relative w-[500px] overflow-hidden rounded-xl bg-border shadow-2xl">
 
             <button
-                class="absolute right-5 top-5 text-white/50 hover:text-white cursor-pointer"
+                class="absolute top-5 right-5 cursor-pointer text-white/50 hover:text-white"
                 @onclick="ConfirmationState.Close">
 
-                <i class="fa-solid fa-xmark text-xl"></i>
+				<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
 
             </button>
 
@@ -16,15 +16,15 @@
 
                 <div class="flex flex-col items-center text-center">
 
-                    <h3 class="text-2xl font-semibold text-white mt-4">
+                    <h3 class="mt-4 text-2xl font-semibold text-white">
                         @ConfirmationState.Title
                     </h3>
 
-                    <p class="mt-6 text-white/70 leading-7">
+                    <p class="mt-6 leading-7 text-white/70">
                         @ConfirmationState.Message
                     </p>
 
-                    <button class="mt-8 px-8 py-3 rounded-lg bg-green-500 hover:bg-green-500/80 transition font-semibold cursor-pointer"
+                    <button class="mt-8 cursor-pointer rounded-lg bg-green-500 px-8 py-3 font-semibold transition hover:bg-green-500/80"
                                 @onclick="OnConfirm">
 
                             @ConfirmationState.ConfirmText
