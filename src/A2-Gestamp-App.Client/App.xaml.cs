@@ -1,16 +1,19 @@
 using A2GestampApp.Application.Startup;
+using A2GestampApp.Infrastructure.Features.Images.Services;
 
 namespace A2GestampApp.Client
 {
   public partial class App : Microsoft.Maui.Controls.Application
   {
-    public App(IApplicationStartup startup)
+    public App(
+      IApplicationStartup startup,
+      ImageFolderCleanupService imageFolderCleanupService)
     {
       InitializeComponent();
 
+      imageFolderCleanupService.CleanStartupFolders();
 
       _ = startup.StartAsync();
-
     }
 
     protected override Window CreateWindow(IActivationState? activationState)

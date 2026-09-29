@@ -7,6 +7,7 @@ using A2GestampApp.Domain.Features.Inspection.Entities;
 using A2GestampApp.Domain.Features.Inspection.Enums;
 using A2GestampApp.Domain.Features.ProductionShift.Entities;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace A2GestampApp.Application.Startup;
@@ -14,8 +15,6 @@ namespace A2GestampApp.Application.Startup;
 internal sealed class ApplicationStartup : IApplicationStartup
 {
   private readonly IKeyenceService _keyenceService;
-  private readonly IProductionShiftRepository _productionShiftRepository;
-  private readonly IInspectionRepository _inspectionRepository;
   private readonly IImageWatcherService _imageWatcher;
   private readonly IInspectionCoordinator _inspectionCoordinator;
   private readonly IImageTransferService _imageTransferService;
@@ -28,11 +27,11 @@ internal sealed class ApplicationStartup : IApplicationStartup
   private readonly IAdminAuthenticationState _adminAuthenticationState;
   private readonly IFaceImageServer _faceImageServer;
   private readonly ILogger<ApplicationStartup> _logger;
+  private readonly IServiceScopeFactory _serviceScopeFactory;
+  private readonly SemaphoreSlim _inspectionProcessingLock = new(1, 1);
 
   public ApplicationStartup(
     IKeyenceService keyenceService,
-    IProductionShiftRepository productionShiftRepository,
-    IInspectionRepository inspectionRepository,
     IImageWatcherService imageWatcher,
     IInspectionCoordinator inspectionCoordinator,
     IInspectionState inspectionState,
@@ -44,11 +43,10 @@ internal sealed class ApplicationStartup : IApplicationStartup
     IPlcService plcService,
     IAdminAuthenticationState adminAuthenticationState,
     IFaceImageServer faceImageServer,
-    ILogger<ApplicationStartup> logger)
+    ILogger<ApplicationStartup> logger,
+    IServiceScopeFactory serviceScopeFactory)
   {
     _keyenceService = keyenceService;
-    _productionShiftRepository = productionShiftRepository;
-    _inspectionRepository = inspectionRepository;
     _imageWatcher = imageWatcher;
     _inspectionCoordinator = inspectionCoordinator;
     _imageTransferService = imageTransferService;
@@ -61,6 +59,7 @@ internal sealed class ApplicationStartup : IApplicationStartup
     _adminAuthenticationState = adminAuthenticationState;
     _faceImageServer = faceImageServer;
     _logger = logger;
+    _serviceScopeFactory = serviceScopeFactory;
 
     _faceRecognitionService.UserRecognized += OnUserRecognized;
   }
@@ -70,32 +69,39 @@ internal sealed class ApplicationStartup : IApplicationStartup
     _logger.LogInformation(
         "[Application] Starting application.");
 
-    ProductionShift? shift =
-        await _productionShiftRepository.GetCurrentAsync();
+    ProductionShift? shift;
 
-    if (shift is null)
+    using (IServiceScope scope = _serviceScopeFactory.CreateScope())
     {
-      _logger.LogInformation(
-          "[Application] No current production shift found. Creating new shift.");
+      IProductionShiftRepository productionShiftRepository =
+          scope.ServiceProvider.GetRequiredService<IProductionShiftRepository>();
 
-      shift = ProductionShift.CreateCurrent();
+      shift = await productionShiftRepository.GetCurrentAsync();
 
-      await _productionShiftRepository.AddAsync(shift);
+      if (shift is null)
+      {
+        _logger.LogInformation(
+            "[Application] No current production shift found. Creating new shift.");
 
-      _logger.LogInformation(
-          "[Application] Production shift created. Start: {Start}, End: {End}, Shift: {Shift}",
-          shift.StartDate,
-          shift.EndDate,
-          shift.ShiftNumber);
-    }
-    else
-    {
-      _logger.LogInformation(
-          "[Application] Current production shift loaded. Id: {Id}, Shift: {Shift}, Start: {Start}, End: {End}",
-          shift.Id,
-          shift.ShiftNumber,
-          shift.StartDate,
-          shift.EndDate);
+        shift = ProductionShift.CreateCurrent();
+
+        await productionShiftRepository.AddAsync(shift);
+
+        _logger.LogInformation(
+            "[Application] Production shift created. Start: {Start}, End: {End}, Shift: {Shift}",
+            shift.StartDate,
+            shift.EndDate,
+            shift.ShiftNumber);
+      }
+      else
+      {
+        _logger.LogInformation(
+            "[Application] Current production shift loaded. Id: {Id}, Shift: {Shift}, Start: {Start}, End: {End}",
+            shift.Id,
+            shift.ShiftNumber,
+            shift.StartDate,
+            shift.EndDate);
+      }
     }
 
     _productionShiftState.SetCurrentShift(shift);
@@ -105,7 +111,7 @@ internal sealed class ApplicationStartup : IApplicationStartup
 
     _inspectionCoordinator.InspectionCompleted += OnInspectionCompleted;
 
-    _logger.LogInformation(
+    _logger.LogDebug(
         "[Application] Inspection event handlers registered.");
 
     try
@@ -121,30 +127,55 @@ internal sealed class ApplicationStartup : IApplicationStartup
 
     _imageWatcher.Start();
 
-    _logger.LogInformation(
+    _logger.LogDebug(
         "[Application] Image watcher started.");
 
     await _keyenceService.StartAsync();
 
-    _logger.LogInformation(
+    _logger.LogDebug(
         "[Application] Keyence service started.");
 
-    await _faceRecognitionService.StartAsync();
+    try
+    {
+      await _faceRecognitionService.StartAsync();
 
-    _logger.LogInformation(
-        "[Application] Face recognition service started.");
+      _logger.LogDebug(
+          "[Application] Face recognition service started.");
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(
+          ex,
+          "[Application] Unable to connect to face recognition service.");
+    }
 
-    await _faceImageServer.StartAsync();
+    try
+    {
+      await _faceImageServer.StartAsync();
 
-    _logger.LogInformation(
-        "[Application] Face image server started.");
+      _logger.LogDebug(
+          "[Application] Face image server started.");
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(
+          ex,
+          "[Application] Unable to connect to face image server.");
+    }
 
-    await _faceRecognitionService.DisableAsync();
+    try
+    {
+      await _faceRecognitionService.DisableAsync();
 
-    _logger.LogInformation(
-        "[Application] Face recognition disabled after startup.");
-
-
+      _logger.LogDebug(
+          "[Application] Face recognition service disabled.");
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(
+          ex,
+          "[Application] Unable to disable face recognition service.");
+    }
 
     _logger.LogInformation(
         "[Application] Application started.");
@@ -153,6 +184,8 @@ internal sealed class ApplicationStartup : IApplicationStartup
   private async void OnInspectionCompleted(
       Inspection inspection)
   {
+    await _inspectionProcessingLock.WaitAsync();
+
     try
     {
       _logger.LogInformation(
@@ -164,22 +197,35 @@ internal sealed class ApplicationStartup : IApplicationStartup
 
       await EnsureCurrentShiftAsync();
 
-      inspection.LinkToProductionShift(
-          _productionShiftState.CurrentShift.Id);
+      int shiftId = _productionShiftState.CurrentShift.Id;
 
-      await _inspectionRepository.AddAsync(inspection);
+      inspection.LinkToProductionShift(shiftId);
+
+      using (IServiceScope scope = _serviceScopeFactory.CreateScope())
+      {
+        IInspectionRepository inspectionRepository =
+            scope.ServiceProvider.GetRequiredService<IInspectionRepository>();
+
+        await inspectionRepository.AddAsync(inspection);
+      }
 
       _logger.LogInformation(
           "[Application] Inspection persisted. InspectionId: {InspectionId}, ShiftId: {ShiftId}",
           inspection.Id,
-          _productionShiftState.CurrentShift.Id);
+          shiftId);
 
       _productionShiftState.CurrentShift.RegisterInspection(
           inspection.FinalJudgement,
           inspection.CycleTime);
 
-      await _productionShiftRepository.UpdateAsync(
-          _productionShiftState.CurrentShift);
+      using (IServiceScope scope = _serviceScopeFactory.CreateScope())
+      {
+        IProductionShiftRepository productionShiftRepository =
+            scope.ServiceProvider.GetRequiredService<IProductionShiftRepository>();
+
+        await productionShiftRepository.UpdateAsync(
+            _productionShiftState.CurrentShift);
+      }
 
       _productionShiftState.NotifyStateChanged();
 
@@ -216,9 +262,12 @@ internal sealed class ApplicationStartup : IApplicationStartup
     {
       _logger.LogError(
           ex,
-          "[Application] Error processing completed inspection.");
-
-      throw;
+          "[Application] Error processing completed inspection. InspectionId: {InspectionId}",
+          inspection.Id);
+    }
+    finally
+    {
+      _inspectionProcessingLock.Release();
     }
   }
 
@@ -274,15 +323,20 @@ internal sealed class ApplicationStartup : IApplicationStartup
     _logger.LogInformation(
         "[Application] Current shift expired. Closing and creating new shift.");
 
+    using IServiceScope scope = _serviceScopeFactory.CreateScope();
+
+    IProductionShiftRepository productionShiftRepository =
+        scope.ServiceProvider.GetRequiredService<IProductionShiftRepository>();
+
     currentShift.Close();
 
-    await _productionShiftRepository.UpdateAsync(
+    await productionShiftRepository.UpdateAsync(
         currentShift);
 
     ProductionShift newShift =
         ProductionShift.CreateCurrent();
 
-    await _productionShiftRepository.AddAsync(
+    await productionShiftRepository.AddAsync(
         newShift);
 
     _productionShiftState.SetCurrentShift(

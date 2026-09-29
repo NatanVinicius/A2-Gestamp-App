@@ -1,9 +1,8 @@
-using System.Diagnostics;
-
 using A2GestampApp.Application.Features.FaceCapture;
 using A2GestampApp.Application.Features.Hikvision;
 using A2GestampApp.Infrastructure.Features.Database;
 using A2GestampApp.Infrastructure.Features.Images;
+using A2GestampApp.Infrastructure.Features.Images.Services;
 using A2GestampApp.Infrastructure.Features.Plc;
 using A2GestampApp.Infrastructure.Hikvision;
 
@@ -19,15 +18,12 @@ public static class InfrastructureServiceCollectionExtensions
       IConfiguration configuration,
     string appDataDirectory)
   {
-
-    Debug.WriteLine(
-        $"SKU AppDataDirectory: {appDataDirectory}");
-
-
     services.AddSingleton<INetworkConnectionService, NetworkConnectionService>();
 
     services.AddKeyence(configuration);
     services.AddImages();
+
+    services.AddSingleton<ImageFolderCleanupService>();
 
     services.AddSingleton<HikvisionClient>();
     services.AddSingleton<FaceRecognitionServer>();

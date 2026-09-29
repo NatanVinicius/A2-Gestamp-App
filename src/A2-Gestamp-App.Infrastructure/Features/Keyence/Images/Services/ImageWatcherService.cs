@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace A2GestampApp.Infrastructure.Features.Images.Services;
 
 public sealed class ImageWatcherService : IImageWatcherService
@@ -6,11 +8,18 @@ public sealed class ImageWatcherService : IImageWatcherService
 
   public event Action<CameraImage>? ImageReceived;
 
+  private readonly ILogger<ImageWatcherService> _logger;
+
   public void Start()
   {
     CreateWatcher("VS1", 1);
     CreateWatcher("VS2", 2);
     CreateWatcher("VS3", 3);
+  }
+
+  public ImageWatcherService(ILogger<ImageWatcherService> logger)
+  {
+    _logger = logger;
   }
 
   private void CreateWatcher(string folderName, int cameraId)
@@ -79,6 +88,13 @@ public sealed class ImageWatcherService : IImageWatcherService
     }
 
     var info = new FileInfo(filePath);
+
+    _logger.LogDebug(
+        "Imagem recebida da câmera {CameraId}: {FilePath} (Tamanho: {FileSize} bytes, Criada em: {CreationTime})",
+        cameraId,
+        filePath,
+        info.Length,
+        info.CreationTime);
 
     ImageReceived?.Invoke(new CameraImage(cameraId, filePath));
   }

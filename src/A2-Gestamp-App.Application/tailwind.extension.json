@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/theron-wang/Tailwind-CSS-for-Visual-Studio/refs/heads/main/tailwind.extension.schema.json",
   "BuildFiles": [
     {
-      "Input": "..\\a2-gestamp-app.client\\resources\\styles\\app.css",
+      "Input": "..\\A2-Gestamp-App.Client\\Resources\\Styles\\app.css",
       "Output": "",
       "Behavior": "Default"
     }

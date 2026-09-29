@@ -129,7 +129,8 @@ public sealed class KeyenceService : IKeyenceService
           message.CameraName,
           message.RawMessage);
 
-      throw;
+      // A malformed packet must not terminate the camera receive loop.
+      // The connection remains active and can process the next valid packet.
     }
   }
 

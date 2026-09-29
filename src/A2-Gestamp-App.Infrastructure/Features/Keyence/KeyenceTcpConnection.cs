@@ -40,14 +40,14 @@ public sealed class KeyenceTcpConnection : IDisposable
   {
     if (IsConnected)
     {
-      _logger.LogInformation(
+      _logger.LogDebug(
           "[Keyence] Camera {Camera} is already connected.",
           _camera.Name);
 
       return;
     }
 
-    _logger.LogInformation(
+    _logger.LogDebug(
         "[Keyence] Connecting to camera {Camera}. Host: {Host}, Port: {Port}",
         _camera.Name,
         _camera.Host,
@@ -64,7 +64,7 @@ public sealed class KeyenceTcpConnection : IDisposable
 
       _camera.isConnected = true;
 
-      _logger.LogInformation(
+      _logger.LogDebug(
           "[Keyence] Camera {Camera} connected successfully. Host: {Host}, Port: {Port}",
           _camera.Name,
           _camera.Host,
@@ -94,11 +94,11 @@ public sealed class KeyenceTcpConnection : IDisposable
 
     _receiveTask = ReceiveLoopAsync(_cts.Token);
 
-    _logger.LogInformation(
+    _logger.LogDebug(
         "[Keyence] Camera {Camera} receive loop started.",
         _camera.Name);
 
-    _logger.LogInformation(
+    _logger.LogDebug(
         "[Keyence] Camera {Camera} DataAvailable: {Available}",
         _camera.Name,
         _stream.DataAvailable);
@@ -142,21 +142,21 @@ public sealed class KeyenceTcpConnection : IDisposable
             0,
             bytesRead);
 
-        _logger.LogInformation(
+        _logger.LogDebug(
             "[Keyence] Data received from camera {Camera}. Bytes: {BytesRead}",
             _camera.Name,
             bytesRead);
 
         if (string.IsNullOrWhiteSpace(message))
         {
-          _logger.LogInformation(
+          _logger.LogDebug(
               "[Keyence] Empty message received from camera {Camera}.",
               _camera.Name);
 
           continue;
         }
 
-        _logger.LogInformation(
+        _logger.LogDebug(
             "[Keyence] Message received from camera {Camera}: {Message}",
             _camera.Name,
             message);
@@ -171,7 +171,7 @@ public sealed class KeyenceTcpConnection : IDisposable
     {
       // Encerramento normal.
 
-      _logger.LogInformation(
+      _logger.LogDebug(
           "[Keyence] Receive loop cancelled for camera {Camera}.",
           _camera.Name);
     }
@@ -200,7 +200,7 @@ public sealed class KeyenceTcpConnection : IDisposable
 
     await _stream.WriteAsync(data);
 
-    _logger.LogInformation(
+    _logger.LogDebug(
         "[Keyence] Message sent to camera {Camera}: {Message}",
         _camera.Name,
         message);
@@ -208,7 +208,7 @@ public sealed class KeyenceTcpConnection : IDisposable
 
   public async Task DisconnectAsync()
   {
-    _logger.LogInformation(
+    _logger.LogDebug(
         "[Keyence] Disconnecting camera {Camera}.",
         _camera.Name);
 
@@ -236,14 +236,14 @@ public sealed class KeyenceTcpConnection : IDisposable
     _cts = null;
     _receiveTask = null;
 
-    _logger.LogInformation(
+    _logger.LogDebug(
         "[Keyence] Camera {Camera} disconnected.",
         _camera.Name);
   }
 
   public void Dispose()
   {
-    _logger.LogInformation(
+    _logger.LogDebug(
         "[Keyence] Disposing connection for camera {Camera}.",
         _camera.Name);
 
